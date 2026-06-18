@@ -426,13 +426,13 @@ function Chat() {
     setLoading(true);
     const newHist = [...history, { role: "user", content: msg }];
     try {
-      const res = await fetch("https://carebridge-ai-vhp0.onrender.com/chat", {
+      const res = await fetch("https://carebridge-ai-vhp0.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg, history: newHist, system: SYSTEM }),
       });
       const data = await res.json();
-      const reply = data.reply || data.result || "I'm here — can you tell me a bit more about what's stopping you?";
+      const reply = data.reply || data.result || "I'm here — can you tell me a bit more?";
       setHistory([...newHist, { role: "assistant", content: reply }]);
       setMessages([...newMsgs, { role: "bot", text: reply }]);
     } catch {
