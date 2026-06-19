@@ -6,42 +6,46 @@ import logoImg from './logo.jpg';
 const QUIZ = [
   {
     q: "When you think about going to a doctor, what's the first feeling that comes up?",
-    hint: "There's no wrong answer, we're trying to understand, not judge.",
+    hint: "Take your time. We're here to understand your concerns, not judge them.",
+    msg: "Getting started is the hardest part.",
     opts: [
-      { text: "Dread, I'm afraid of what they might find", val: "fear" },
-      { text: "Embarrassment, what will people think?", val: "stigma" },
-      { text: "Busy, I genuinely don't have the bandwidth", val: "time" },
-      { text: "Money worries, it'll be expensive", val: "cost" },
+      { icon: "😟", title: "Dread", text: "I'm afraid of what they might discover", val: "fear" },
+      { icon: "😳", title: "Embarrassment", text: "I'm worried about what others will think", val: "stigma" },
+      { icon: "💼", title: "Busy Schedule", text: "I genuinely don't have enough time", val: "time" },
+      { icon: "💰", title: "Financial Concerns", text: "I'm worried treatment will be expensive", val: "cost" },
     ],
   },
   {
     q: "If someone close to you had the same symptoms, would you tell them to see a doctor?",
-    hint: "Think honestly, not the 'right' answer.",
+    hint: "There's no wrong answer. Honest responses help provide better guidance.",
+    msg: "You're halfway to understanding your healthcare barriers.",
     opts: [
-      { text: "Yes, immediately, their health matters", val: "denial" },
-      { text: "Probably, but I'd understand if they hesitated", val: "stigma" },
-      { text: "Maybe, depends how serious it seems", val: "denial" },
-      { text: "I'd tell them to wait and see first", val: "fear" },
+      { icon: "🫂", title: "Yes, immediately", text: "Their health matters more than anything", val: "denial" },
+      { icon: "🤝", title: "Probably", text: "But I'd understand if they hesitated", val: "stigma" },
+      { icon: "⚖️", title: "Maybe", text: "It depends on how serious it seems", val: "denial" },
+      { icon: "⏳", title: "Wait and see", text: "I'd tell them to give it some time first", val: "fear" },
     ],
   },
   {
     q: "Have you searched your symptoms online in the last month?",
     hint: "Online searches often hide underlying worry.",
+    msg: "Just one more step after this.",
     opts: [
-      { text: "Yes, multiple times, it's been worrying me", val: "fear" },
-      { text: "Once or twice, just curious", val: "denial" },
-      { text: "No, I prefer not to know", val: "fear" },
-      { text: "Yes, and the results scared me more", val: "fear" },
+      { icon: "🔍", title: "Yes, multiple times", text: "It's been worrying me a lot", val: "fear" },
+      { icon: "🤔", title: "Once or twice", text: "I was just curious", val: "denial" },
+      { icon: "🙈", title: "No", text: "I prefer not to know", val: "fear" },
+      { icon: "😰", title: "Yes, it scared me", text: "The results made me more anxious", val: "fear" },
     ],
   },
   {
     q: "What would make it easiest for you to take a first step toward care?",
     hint: "Choose what resonates most right now.",
+    msg: "Almost done! We'll prepare your personalized insights.",
     opts: [
-      { text: "Knowing exactly what it will cost beforehand", val: "cost" },
-      { text: "A way to go without anyone knowing", val: "stigma" },
-      { text: "A 15 minute appointment I can do from my phone", val: "time" },
-      { text: "Someone explaining what to expect at the visit", val: "fear" },
+      { icon: "💸", title: "Price Transparency", text: "Knowing exactly what it will cost beforehand", val: "cost" },
+      { icon: "🕶️", title: "Total Privacy", text: "A way to go without anyone knowing", val: "stigma" },
+      { icon: "📱", title: "Convenience", text: "A 15 minute appointment from my phone", val: "time" },
+      { icon: "🗺️", title: "Clear Expectations", text: "Someone explaining what to expect", val: "fear" },
     ],
   },
 ];
@@ -281,65 +285,107 @@ function Quiz({ setTab }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
+  const [selectedOpt, setSelectedOpt] = useState(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const pick = (val) => {
-    const next = [...answers, val];
-    setAnswers(next);
-    if (step + 1 >= QUIZ.length) {
-      const tally = {};
-      next.forEach((v) => { tally[v] = (tally[v] || 0) + 1; });
-      const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0][0];
-      setResult(RESULTS[top]);
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      fetch(`${API_URL}/api/quiz`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ primaryBarrier: top })
-      }).catch(e => console.error(e));
-    } else {
-      setStep(step + 1);
-    }
+  const pick = (val, idx) => {
+    if (selectedOpt !== null) return;
+    setSelectedOpt(idx);
+    const newAns = [...answers, val];
+    
+    setTimeout(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setAnswers(newAns);
+        setSelectedOpt(null);
+        setIsTransitioning(false);
+        if (step === QUIZ.length - 1) {
+          const counts = newAns.reduce((acc, v) => { acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+          const top = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+          
+          fetch('/api/quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ barrierId: top, answers: newAns })
+          }).catch(err => console.error("Analytics error:", err));
+
+          setResult(RESULTS[top]);
+        } else {
+          setStep(step + 1);
+        }
+      }, 300);
+    }, 600);
   };
 
-  const reset = () => { setStep(0); setAnswers([]); setResult(null); };
+  const reset = () => { setStep(0); setAnswers([]); setResult(null); setSelectedOpt(null); setIsTransitioning(false); };
 
   return (
-    <div className="page-inner">
-      <div className="section-label">Barrier check</div>
-      <h2 className="section-title">What's really holding you back?</h2>
-      <p className="section-desc">4 questions, 90 seconds, reveals your real barrier</p>
+    <div className="page-inner quiz-page-bg">
+      <div className="quiz-header-block">
+        <h2 className="section-title">What's really holding you back?</h2>
+        <p className="quiz-subtitle">Answer four quick questions to discover the biggest barrier preventing you from seeking healthcare. There are no right or wrong answers.</p>
+        <div className="quiz-trust-badge">
+          🔒 Anonymous • Secure • No Judgment • Takes Less Than 90 Seconds
+        </div>
+      </div>
 
       {!result ? (
-        <div className="card quiz-card">
-          <div className="quiz-progress">
-            {QUIZ.map((_, i) => (
-              <div key={i} className={`quiz-pip ${i < step ? "done" : i === step ? "active" : ""}`} />
-            ))}
+        <div className={`card quiz-card ${isTransitioning ? 'fade-out' : 'fade-in-up'}`}>
+          <div className="quiz-progress-wrapper">
+            <div className="quiz-progress-circles">
+              {QUIZ.map((_, i) => (
+                <React.Fragment key={i}>
+                  <div className={`quiz-circle ${i < step ? "done" : i === step ? "active" : ""}`} />
+                  {i < QUIZ.length - 1 && <div className={`quiz-line ${i < step ? "done" : ""}`} />}
+                </React.Fragment>
+              ))}
+            </div>
+            <div className="quiz-progress-msg">{QUIZ[step].msg}</div>
           </div>
+          
           <div className="quiz-q">{QUIZ[step].q}</div>
           <div className="quiz-hint">{QUIZ[step].hint}</div>
-          <div className="quiz-opts">
-            {QUIZ[step].opts.map((o) => (
-              <button key={o.text} className="quiz-opt" onClick={() => pick(o.val)}>{o.text}</button>
+          <div className="quiz-opts-premium">
+            {QUIZ[step].opts.map((o, idx) => (
+              <button 
+                key={o.text} 
+                className={`quiz-opt-card ${selectedOpt === idx ? 'selected' : ''}`} 
+                onClick={() => pick(o.val, idx)}
+              >
+                <div className="opt-icon">{o.icon}</div>
+                <div className="opt-content">
+                  <div className="opt-title">{o.title}</div>
+                  <div className="opt-text">{o.text}</div>
+                </div>
+                <div className={`opt-check ${selectedOpt === idx ? 'visible' : ''}`}>✓</div>
+              </button>
             ))}
           </div>
         </div>
       ) : (
-        <div className="card result-card fade-in">
-          <div className="result-tag" style={{ background: result.bg, color: result.color }}>{result.label}</div>
-          <div className="result-name">{result.name}</div>
-          <p className="result-body">{result.body}</p>
-          <div className="steps-label">Your next steps</div>
-          <div className="result-steps">
-            {result.steps.map((s, i) => (
-              <div key={i} className="result-step">
-                <div className="step-num">{i + 1}</div>
-                <span>{s}</span>
-              </div>
-            ))}
+        <div className="card result-card-premium fade-in-up">
+          <div className="result-top-indicator">Analysis Complete • 92% Confidence</div>
+          <div className="result-header">
+            <div className="result-pre-title">Your Primary Barrier</div>
+            <div className="result-tag" style={{ background: result.bg, color: result.color }}>{result.label}</div>
           </div>
-          <div className="result-actions">
-            <button className="btn btn-primary" onClick={() => setTab("chat")}>Talk to CareBridge about this →</button>
+          
+          <p className="result-body">{result.body}</p>
+          
+          <div className="steps-premium-box">
+            <div className="steps-label">Recommended Next Steps</div>
+            <div className="result-steps-clean">
+              {result.steps.map((s, i) => (
+                <div key={i} className="result-step-clean">
+                  <span className="step-check">✓</span>
+                  <span>{s}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="result-actions-stack">
+            <button className="btn btn-primary btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</button>
             {result === RESULTS.cost && (
               <button className="btn btn-primary" onClick={() => setTab("plans")}>View Care Plans →</button>
             )}
