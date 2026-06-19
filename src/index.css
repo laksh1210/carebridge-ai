@@ -174,7 +174,35 @@ a { text-decoration: none; }
 .hero-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
 .hero-right { position: relative; display: flex; align-items: center; justify-content: center; }
 .hero-graphic-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
-.hero-graphic { width: 100%; height: auto; border-radius: 50%; box-shadow: 0 20px 40px rgba(0,0,0,0.1); object-fit: cover; aspect-ratio: 1/1; }
+.css-compass {
+  width: 100%; aspect-ratio: 1/1; border-radius: 50%;
+  position: relative; background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 40px rgba(139,94,60,0.05), 0 20px 40px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
+}
+.css-compass-inner {
+  width: 65%; height: 65%; border-radius: 50%;
+  background: var(--brand-lt); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 30px rgba(139,94,60,0.15);
+  position: relative; animation: slowSpin 30s linear infinite;
+}
+.css-compass-inner::before, .css-compass-inner::after {
+  content: ''; position: absolute; border-radius: 50%;
+  border: 1px dashed var(--brand); opacity: 0.3;
+}
+.css-compass-inner::before { width: 120%; height: 120%; }
+.css-compass-inner::after { width: 140%; height: 140%; }
+.css-compass-core {
+  width: 35%; height: 35%; border-radius: 50%; background: var(--brand);
+  position: relative; z-index: 2; box-shadow: 0 4px 12px rgba(139,94,60,0.3);
+}
+.css-compass-core::after {
+  content: ''; position: absolute; top: -30%; left: 40%;
+  width: 20%; height: 160%; background: var(--brand-dk);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+@keyframes slowSpin { 100% { transform: rotate(360deg); } }
 .hero-float {
   position: absolute; top: 10%; right: -5%;
   background: var(--brand); color: #fff; border-radius: var(--r-full);
@@ -223,7 +251,12 @@ a { text-decoration: none; }
   box-shadow: 0 15px 30px rgba(139,94,60,.2); 
   filter: brightness(1.03); 
 }
-.impact-icon { font-size: 1.5rem; opacity: 0.8; margin-bottom: 0.5rem; }
+.impact-icon { 
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(0,0,0,0.1); margin-bottom: 1rem;
+}
+.impact-bg-4 .impact-icon, .impact-bg-2 .impact-icon { background: rgba(139,94,60,0.08); }
 .impact-num { font-family: 'Lora', serif; font-size: 2.8rem; font-weight: 500; margin-bottom: 0; line-height: 1.1; color: inherit; }
 .impact-label { font-size: .85rem; line-height: 1.5; color: inherit; opacity: 0.9; }
 
