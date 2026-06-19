@@ -429,10 +429,18 @@ function Chat() {
       const res = await fetch("https://carebridge-ai-vhp0.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, history: newHist, system: SYSTEM }),
+        body: JSON.stringify({ message: msg }),
       });
       const data = await res.json();
-      const reply = data.reply || data.result || "I'm here — can you tell me a bit more?";
+      // Try to parse JSON result, fall back to raw text
+      let reply = "";
+      try {
+        const cleaned = data.result.replace(/```json/g, "").replace(/```/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+        reply = parsed.encouragement || parsed.summary || parsed.nextStep || data.result;
+      } catch {
+        reply = data.result || "I'm here — can you tell me a bit more about what's stopping you?";
+      }
       setHistory([...newHist, { role: "assistant", content: reply }]);
       setMessages([...newMsgs, { role: "bot", text: reply }]);
     } catch {
