@@ -185,6 +185,7 @@ function Home({ setTab }) {
           <div className="hero-actions">
             <button className="btn btn-primary" onClick={() => setTab("quiz")}>Find your barrier →</button>
             <button className="btn btn-outline" onClick={() => setTab("chat")}>Talk it through</button>
+            <button className="btn btn-outline" onClick={() => setTab("costs")}>View Healthcare Costs</button>
           </div>
         </div>
         <div className="hero-right">
@@ -315,6 +316,9 @@ function Quiz({ setTab }) {
           </div>
           <div className="result-actions">
             <button className="btn btn-primary" onClick={() => setTab("chat")}>Talk to CareBridge about this →</button>
+            {result === RESULTS.cost && (
+              <button className="btn btn-primary" onClick={() => setTab("costs")}>View Healthcare Costs →</button>
+            )}
             <button className="btn btn-outline" onClick={reset}>Retake quiz</button>
           </div>
         </div>
