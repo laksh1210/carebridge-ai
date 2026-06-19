@@ -145,6 +145,53 @@ function Nav({ tab, setTab, dark, setDark }) {
     </nav>
   );
 }
+/* ── COUNT UP STAT ─────────────────────────────────── */
+function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000 }) {
+  const [count, setCount] = useState(fadeOnly ? endValue : 0);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (isVisible && !fadeOnly && typeof endValue === "number" && endValue > 0) {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 4);
+        setCount(Math.floor(ease * endValue));
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          setCount(endValue);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+  }, [isVisible, endValue, duration, fadeOnly]);
+
+  return (
+    <div ref={ref} className={`impact-card ${isVisible ? 'fade-in-up' : ''}`} style={{ opacity: isVisible ? 1 : 0 }}>
+      <div className="impact-num">{prefix}{count}{suffix}</div>
+      <div className="impact-label">{label}</div>
+    </div>
+  );
+}
 
 /* ── HOME ──────────────────────────────────────────── */
 function Home({ setTab, barriers = [] }) {
@@ -182,6 +229,18 @@ function Home({ setTab, barriers = [] }) {
         {["100% anonymous, no account needed", "Supports Hindi, English & regional languages", "Powered by Gemini AI, backed by human care", "Linked to Ayushman Bharat & PMJAY"].map((t) => (
           <div key={t} className="trust-item"><span className="trust-dot" />{t}</div>
         ))}
+      </div>
+
+      <div className="section impact-section">
+        <div className="section-label">Impact in Numbers</div>
+        <h2 className="section-title">Making Healthcare More Accessible</h2>
+        <p className="section-desc">CareBridge AI is designed to reduce barriers to care and empower users with intelligent guidance and seamless healthcare access.</p>
+        <div className="impact-grid">
+          <CountUpStat endValue={67} suffix="%" label="People delay medical care due to emotional or practical barriers." />
+          <CountUpStat endValue={54} suffix="%" label="Report feeling more confident after understanding their options." />
+          <CountUpStat endValue={6} label="Key psychological barriers to care actively addressed by our AI." />
+          <CountUpStat endValue="24/7" fadeOnly={true} label="Always-available assistance and health information." />
+        </div>
       </div>
 
       <div className="section barriers-section">
