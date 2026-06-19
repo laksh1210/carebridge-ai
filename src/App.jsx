@@ -146,7 +146,7 @@ function Nav({ tab, setTab, dark, setDark }) {
   );
 }
 /* ── COUNT UP STAT ─────────────────────────────────── */
-function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000 }) {
+function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000, icon, colorClass = "" }) {
   const [count, setCount] = useState(fadeOnly ? endValue : 0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -186,7 +186,8 @@ function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = fal
   }, [isVisible, endValue, duration, fadeOnly]);
 
   return (
-    <div ref={ref} className={`impact-card ${isVisible ? 'fade-in-up' : ''}`} style={{ opacity: isVisible ? 1 : 0 }}>
+    <div ref={ref} className={`impact-card ${isVisible ? 'fade-in-up' : ''} ${colorClass}`} style={{ opacity: isVisible ? 1 : 0 }}>
+      {icon && <div className="impact-icon">{icon}</div>}
       <div className="impact-num">{prefix}{count}{suffix}</div>
       <div className="impact-label">{label}</div>
     </div>
@@ -208,20 +209,9 @@ function Home({ setTab, barriers = [] }) {
             <button className="btn btn-outline" onClick={() => setTab("plans")}>View Care Plans</button>
           </div>
         </div>
-        <div className="hero-right">
+        <div className="hero-right hero-graphic-container">
           <div className="hero-float">78% feel better after first step ✓</div>
-          {[
-            { label: "Fear of diagnosis", sub: "Most common reason people wait", w: 67, color: "#D85A30" },
-            { label: "Stigma & judgment", sub: "Second reason, especially men", w: 54, color: "#BA7517" },
-            { label: "Cost uncertainty", sub: "Solved by free govt. services", w: 41, color: "#7F77DD" },
-            { label: "Users who took action", sub: "Within 72 hours of using CareBridge", w: 78, color: "#1D9E75", teal: true },
-          ].map((b) => (
-            <div key={b.label} className={`hero-card ${b.teal ? "hero-card-warm" : ""}`}>
-              <div className="hc-label">{b.label}</div>
-              <div className="hc-val">{b.sub}</div>
-              <div className="hc-bar"><div className="hc-fill" style={{ width: `${b.w}%`, background: b.color }} /></div>
-            </div>
-          ))}
+          <img src="/hero-compass.png" className="hero-graphic" alt="CareBridge Navigation" />
         </div>
       </div>
 
@@ -236,10 +226,10 @@ function Home({ setTab, barriers = [] }) {
         <h2 className="section-title">Making Healthcare More Accessible</h2>
         <p className="section-desc">CareBridge AI is designed to reduce barriers to care and empower users with intelligent guidance and seamless healthcare access.</p>
         <div className="impact-grid">
-          <CountUpStat endValue={67} suffix="%" label="People delay medical care due to emotional or practical barriers." />
-          <CountUpStat endValue={54} suffix="%" label="Report feeling more confident after understanding their options." />
-          <CountUpStat endValue={6} label="Key psychological barriers to care actively addressed by our AI." />
-          <CountUpStat endValue="24/7" fadeOnly={true} label="Always-available assistance and health information." />
+          <CountUpStat endValue={67} suffix="%" label="People delay medical care due to emotional or practical barriers." icon="🗝️" colorClass="impact-bg-1" />
+          <CountUpStat endValue={54} suffix="%" label="Report feeling more confident after understanding their options." icon="🛡️" colorClass="impact-bg-2" />
+          <CountUpStat endValue={6} label="Key psychological barriers to care actively addressed by our AI." icon="🧠" colorClass="impact-bg-3" />
+          <CountUpStat endValue="24/7" fadeOnly={true} label="Always-available assistance and health information." icon="♾️" colorClass="impact-bg-4" />
         </div>
       </div>
 
@@ -251,11 +241,13 @@ function Home({ setTab, barriers = [] }) {
         <div className="barriers-grid">
           {barriers.map((b) => (
             <div key={b.name} className="barrier-card">
-              <div className="barrier-icon">
-                <img src={b.icon} alt={b.name} />
+              <div className="barrier-hero-img-wrapper">
+                <img src={b.icon} className="barrier-hero-img" alt={b.name} />
               </div>
-              <div className="barrier-name">{b.name}</div>
-              <div className="barrier-desc">{b.desc}</div>
+              <div className="barrier-card-content">
+                <div className="barrier-name">{b.name}</div>
+                <div className="barrier-desc">{b.desc}</div>
+              </div>
             </div>
           ))}
         </div>
