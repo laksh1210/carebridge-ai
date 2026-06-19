@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import './index.css';
 import logoImg from './logo.jpg';
 
@@ -122,62 +123,96 @@ const RESULTS = {
 /* ── NAV ───────────────────────────────────────────── */
 function Nav({ tab, setTab, dark, setDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { scrollY } = useScroll();
+  const navBackground = useTransform(
+    scrollY,
+    [0, 50],
+    ["rgba(var(--bg-rgb), 0)", "rgba(var(--bg-rgb), 0.9)"]
+  );
+  const navShadow = useTransform(
+    scrollY,
+    [0, 50],
+    ["none", "0 4px 20px rgba(0,0,0,0.05)"]
+  );
+  const navPadding = useTransform(
+    scrollY,
+    [0, 50],
+    ["1.5rem 2rem", "1rem 2rem"]
+  );
+
   const tabs = ["home", "quiz", "stories", "plans", "chat"];
   return (
-    <nav className="nav">
-      <button className="nav-logo" onClick={() => setTab("home")}>
+    <motion.nav 
+      className="nav"
+      style={{
+        background: navBackground,
+        boxShadow: navShadow,
+        padding: navPadding,
+        backdropFilter: "blur(8px)",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between"
+      }}
+    >
+      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="nav-logo" onClick={() => setTab("home")}>
         <img src={logoImg} alt="CareBridge AI Logo" className="nav-logo-img" />
         CareBridge AI
-      </button>
+      </motion.button>
       <div className="nav-tabs">
         {tabs.map((t) => (
           <button key={t} className={`nav-tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>
             {t === "chat" ? "Talk to AI" : t.charAt(0).toUpperCase() + t.slice(1)}
+            {tab === t && (
+              <motion.div layoutId="nav-indicator" className="nav-active-indicator" style={{ position: 'absolute', bottom: -5, left: 0, right: 0, height: 2, background: 'var(--brand)' }} />
+            )}
           </button>
         ))}
       </div>
       <div className="nav-right">
-        <button className="theme-toggle" onClick={() => setDark(!dark)}>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="theme-toggle" onClick={() => setDark(!dark)}>
           {dark ? "☀️" : "🌙"} <span>{dark ? "Light" : "Dark"}</span>
-        </button>
+        </motion.button>
         <button className="nav-mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
       </div>
-      {menuOpen && (
-        <div className="nav-mobile-menu">
-          {tabs.map((t) => (
-            <button key={t} onClick={() => { setTab(t); setMenuOpen(false); }}>
-              {t === "chat" ? "Talk to AI" : t.charAt(0).toUpperCase() + t.slice(1)}
-            </button>
-          ))}
-        </div>
-      )}
-    </nav>
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="nav-mobile-menu"
+          >
+            {tabs.map((t) => (
+              <button key={t} onClick={() => { setTab(t); setMenuOpen(false); }}>
+                {t === "chat" ? "Talk to AI" : t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 }
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.15 } }
+};
+
+const fadeUpVariant = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
 /* ── COUNT UP STAT ─────────────────────────────────── */
 function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000, heading, colorClass = "" }) {
   const [count, setCount] = useState(fadeOnly ? endValue : 0);
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef(null);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (isVisible && !fadeOnly && typeof endValue === "number" && endValue > 0) {
+    if (hasStarted && !fadeOnly && typeof endValue === "number" && endValue > 0) {
       let startTimestamp = null;
       const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
@@ -192,40 +227,60 @@ function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = fal
       };
       window.requestAnimationFrame(step);
     }
-  }, [isVisible, endValue, duration, fadeOnly]);
+  }, [hasStarted, endValue, duration, fadeOnly]);
 
   return (
-    <div ref={ref} className={`impact-card ${isVisible ? 'fade-in-up' : ''} ${colorClass}`} style={{ opacity: isVisible ? 1 : 0 }}>
+    <motion.div 
+      variants={fadeUpVariant}
+      onViewportEnter={() => setHasStarted(true)}
+      viewport={{ once: true, amount: 0.2 }}
+      className={`impact-card ${colorClass}`}
+    >
       {heading && <div className="impact-heading">{heading}</div>}
       <div className="impact-num">{prefix}{count}{suffix}</div>
       <div className="impact-label">{label}</div>
-    </div>
+    </motion.div>
   );
 }
 
 /* ── HOME ──────────────────────────────────────────── */
 function Home({ setTab, barriers = [] }) {
   return (
-    <div className="page-home">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="page-home"
+    >
       <div className="hero">
-        <div className="hero-left">
-          <div className="eyebrow"><span className="pulse-dot" />Healthcare access · India</div>
-          <h1>You deserve care.<br /><em>Let's make it easy</em> to ask for it.</h1>
-          <p className="hero-sub">CareBridge understands why people hesitate (fear, cost, stigma) and meets you where you are. No judgment. Real next steps.</p>
-          <div className="hero-actions">
-            <button className="btn btn-primary" onClick={() => setTab("quiz")}>Find your barrier →</button>
-            <button className="btn btn-outline" onClick={() => setTab("chat")}>Talk it through</button>
-            <button className="btn btn-outline" onClick={() => setTab("plans")}>View Care Plans</button>
-          </div>
-        </div>
-        <div className="hero-right hero-graphic-container">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="hero-left"
+        >
+          <motion.div variants={fadeUpVariant} className="eyebrow"><span className="pulse-dot" />Healthcare access · India</motion.div>
+          <motion.h1 variants={fadeUpVariant}>You deserve care.<br /><em>Let's make it easy</em> to ask for it.</motion.h1>
+          <motion.p variants={fadeUpVariant} className="hero-sub">CareBridge understands why people hesitate (fear, cost, stigma) and meets you where you are. No judgment. Real next steps.</motion.p>
+          <motion.div variants={fadeUpVariant} className="hero-actions">
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("quiz")}>Find your barrier →</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("chat")}>Talk it through</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("plans")}>View Care Plans</motion.button>
+          </motion.div>
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+          className="hero-right hero-graphic-container"
+        >
           <div className="hero-float">78% feel better after first step ✓</div>
           <div className="css-compass">
             <div className="css-compass-inner">
               <div className="css-compass-core" />
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div className="trust-strip">
@@ -234,26 +289,43 @@ function Home({ setTab, barriers = [] }) {
         ))}
       </div>
 
-      <div className="section impact-section">
-        <div className="section-label">Impact in Numbers</div>
-        <h2 className="section-title">Making Healthcare More Accessible</h2>
-        <p className="section-desc">CareBridge AI is designed to reduce barriers to care and empower users with intelligent guidance and seamless healthcare access.</p>
-        <div className="impact-grid">
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        className="section impact-section"
+      >
+        <motion.div variants={fadeUpVariant} className="section-label">Impact in Numbers</motion.div>
+        <motion.h2 variants={fadeUpVariant} className="section-title">Making Healthcare More Accessible</motion.h2>
+        <motion.p variants={fadeUpVariant} className="section-desc">CareBridge AI is designed to reduce barriers to care and empower users with intelligent guidance and seamless healthcare access.</motion.p>
+        <motion.div variants={staggerContainer} className="impact-grid">
           <CountUpStat endValue={67} suffix="%" label="People delay medical care due to emotional or practical barriers." heading="Delayed Care" colorClass="impact-bg-1" />
           <CountUpStat endValue={54} suffix="%" label="Report feeling more confident after understanding their options." heading="Increased Confidence" colorClass="impact-bg-2" />
           <CountUpStat endValue={6} label="Key psychological barriers to care actively addressed by our AI." heading="Key Barriers" colorClass="impact-bg-3" />
           <CountUpStat endValue="24/7" fadeOnly={true} label="Always-available assistance and health information." heading="Always Available" colorClass="impact-bg-4" />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      <div className="section barriers-section">
-        <div className="section-label">Understanding hesitation</div>
-        <h2 className="section-title">The six barriers CareBridge addresses</h2>
-        <p className="section-desc">These aren't excuses, they are real psychological patterns. Recognising yours is the first step toward care.</p>
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.1 }}
+        className="section barriers-section"
+      >
+        <motion.div variants={fadeUpVariant} className="section-label">Understanding hesitation</motion.div>
+        <motion.h2 variants={fadeUpVariant} className="section-title">The six barriers CareBridge addresses</motion.h2>
+        <motion.p variants={fadeUpVariant} className="section-desc">These aren't excuses, they are real psychological patterns. Recognising yours is the first step toward care.</motion.p>
 
-        <div className="barriers-grid">
+        <motion.div variants={staggerContainer} className="barriers-grid">
           {barriers.map((b) => (
-            <div key={b.name} className="barrier-card">
+            <motion.div 
+              key={b.name} 
+              variants={fadeUpVariant}
+              whileHover={{ y: -6, boxShadow: "0 12px 30px rgba(0,0,0,0.06)", borderColor: "rgba(139, 94, 60, 0.2)" }}
+              className="barrier-card"
+            >
               <div className="barrier-hero-img-wrapper">
                 <img src={b.icon} className="barrier-hero-img" alt={b.name} />
               </div>
@@ -261,10 +333,10 @@ function Home({ setTab, barriers = [] }) {
                 <div className="barrier-name">{b.name}</div>
                 <div className="barrier-desc">{b.desc}</div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <footer className="site-footer">
         <div className="footer-inner">
@@ -281,7 +353,7 @@ function Home({ setTab, barriers = [] }) {
           🆘 <strong>In crisis?</strong> iCall: 9152987821 · Vandrevala: 1860 2662 345 · NIMHANS: 080 46110007 · Snehi: 044 24640050
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 }
 
@@ -290,51 +362,58 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [selectedOpt, setSelectedOpt] = useState(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const pick = (val, idx) => {
     if (selectedOpt !== null) return;
     setSelectedOpt(idx);
     const newAns = [...answers, val];
-    
     setTimeout(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setAnswers(newAns);
-        setSelectedOpt(null);
-        setIsTransitioning(false);
-        if (step === QUIZ.length - 1) {
-          const counts = newAns.reduce((acc, v) => { acc[v] = (acc[v] || 0) + 1; return acc; }, {});
-          const top = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-          
-          fetch('/api/quiz', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ barrierId: top, answers: newAns })
-          }).catch(err => console.error("Analytics error:", err));
+      setAnswers(newAns);
+      setSelectedOpt(null);
+      if (step === QUIZ.length - 1) {
+        const counts = newAns.reduce((acc, v) => { acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+        const top = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+        
+        fetch('/api/quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ barrierId: top, answers: newAns })
+        }).catch(err => console.error("Analytics error:", err));
 
-          setQuizResult(RESULTS[top]);
-        } else {
-          setStep(step + 1);
-        }
-      }, 300);
+        setQuizResult(RESULTS[top]);
+      } else {
+        setStep(step + 1);
+      }
     }, 600);
   };
 
-  const reset = () => { setStep(0); setAnswers([]); setQuizResult(null); setSelectedOpt(null); setIsTransitioning(false); };
+  const reset = () => { setStep(0); setAnswers([]); setQuizResult(null); setSelectedOpt(null); };
 
   return (
-    <div className="page-inner quiz-page-bg">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="page-inner quiz-page-bg"
+    >
       <div className="quiz-header-block">
-        <h2 className="section-title">What's really holding you back?</h2>
-        <p className="quiz-subtitle">Answer four quick questions to discover the biggest barrier preventing you from seeking healthcare. There are no right or wrong answers.</p>
-        <div className="quiz-trust-badge">
+        <motion.h2 variants={fadeUpVariant} initial="hidden" animate="show" className="section-title">What's really holding you back?</motion.h2>
+        <motion.p variants={fadeUpVariant} initial="hidden" animate="show" transition={{ delay: 0.1 }} className="quiz-subtitle">Answer four quick questions to discover the biggest barrier preventing you from seeking healthcare. There are no right or wrong answers.</motion.p>
+        <motion.div variants={fadeUpVariant} initial="hidden" animate="show" transition={{ delay: 0.2 }} className="quiz-trust-badge">
           🔒 Anonymous • Secure • No Judgment • Takes Less Than 90 Seconds
-        </div>
+        </motion.div>
       </div>
 
-      {!quizResult ? (
-        <div className={`card quiz-card ${isTransitioning ? 'fade-out' : 'fade-in-up'}`}>
+      <AnimatePresence mode="wait">
+        {!quizResult ? (
+          <motion.div 
+            key={`step-${step}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="card quiz-card"
+          >
           <div className="quiz-progress-wrapper">
             <div className="quiz-progress-circles">
               {QUIZ.map((_, i) => (
@@ -351,7 +430,9 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
           <div className="quiz-hint">{QUIZ[step].hint}</div>
           <div className="quiz-opts-premium">
             {QUIZ[step].opts.map((o, idx) => (
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
                 key={o.text} 
                 className={`quiz-opt-card ${selectedOpt === idx ? 'selected' : ''}`} 
                 onClick={() => pick(o.val, idx)}
@@ -362,12 +443,18 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
                   <div className="opt-text">{o.text}</div>
                 </div>
                 <div className={`opt-check ${selectedOpt === idx ? 'visible' : ''}`}>✓</div>
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div className="card result-card-premium fade-in-up">
+        <motion.div 
+          key="result"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring" }}
+          className="card result-card-premium"
+        >
           <div className="result-top-indicator">Analysis Complete • 92% Confidence</div>
           <div className="result-header">
             <div className="result-pre-title">Your Primary Barrier</div>
@@ -389,15 +476,16 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
           </div>
           
           <div className="result-actions-stack">
-            <button className="btn btn-primary btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</motion.button>
             {quizResult === RESULTS.cost && (
-              <button className="btn btn-primary" onClick={() => setTab("plans")}>View Care Plans →</button>
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("plans")}>View Care Plans →</motion.button>
             )}
-            <button className="btn btn-outline" onClick={reset}>Retake quiz</button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={reset}>Retake quiz</motion.button>
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -456,10 +544,17 @@ function Stories({ stories = [], setTab, quizResult }) {
   };
 
   return (
-    <div className="page-inner page-stories">
-      <div className="section-label">Real voices</div>
-      <h2 className="section-title">People just like you who took the step</h2>
-      <p className="section-desc">Names changed for privacy, but the journeys are real.</p>
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="page-inner page-stories"
+    >
+      <motion.div variants={fadeUpVariant} initial="hidden" animate="show">
+        <div className="section-label">Real voices</div>
+        <h2 className="section-title">People just like you who took the step</h2>
+        <p className="section-desc">Names changed for privacy, but the journeys are real.</p>
+      </motion.div>
 
       {/* Search & Filters */}
       <div className="stories-controls">
@@ -486,18 +581,26 @@ function Stories({ stories = [], setTab, quizResult }) {
         </div>
       </div>
 
-      <div className="stories-grid-premium">
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.1 }}
+        className="stories-grid-premium"
+      >
         {displayStories.length === 0 ? (
-          <div className="no-stories">No stories found matching your criteria.</div>
+          <motion.div variants={fadeUpVariant} className="no-stories">No stories found matching your criteria.</motion.div>
         ) : (
           displayStories.map((s, i) => {
             const isSimilar = recCat && s.category === recCat;
             const isExpanded = expandedStory === s.name;
             return (
-              <div 
+              <motion.div 
                 key={s.name} 
-                className={`story-card-premium fade-in-up ${isSimilar ? 'similar-highlight' : ''}`}
-                style={{ animationDelay: `${i * 0.1}s` }}
+                variants={fadeUpVariant}
+                whileHover={{ y: -6, boxShadow: "0 12px 30px rgba(0,0,0,0.06)" }}
+                layout
+                className={`story-card-premium ${isSimilar ? 'similar-highlight' : ''}`}
               >
                 {isSimilar && <div className="similar-badge">✨ Similar to You</div>}
                 <div className="story-premium-header">
@@ -521,22 +624,28 @@ function Stories({ stories = [], setTab, quizResult }) {
                     <span className="outcome-check">✓</span> {s.outcome}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })
         )}
-      </div>
+      </motion.div>
 
       {/* CTA SECTION */}
-      <div className="stories-cta fade-in-up" style={{ animationDelay: '0.4s' }}>
+      <motion.div 
+        variants={fadeUpVariant}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.5 }}
+        className="stories-cta"
+      >
         <h2>Your journey can start today.</h2>
         <p>Thousands of people overcome healthcare barriers by taking one small first step. Discover yours in under 90 seconds.</p>
         <div className="cta-actions">
-          <button className="btn btn-primary btn-large" onClick={() => setTab("quiz")}>Take the Barrier Quiz</button>
-          <button className="btn btn-outline btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary btn-large" onClick={() => setTab("quiz")}>Take the Barrier Quiz</motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -556,49 +665,77 @@ function CarePlans({ setTab }) {
   ];
 
   return (
-    <div className="page-inner page-plans">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="page-inner page-plans"
+    >
       <div className="section-label">How It Works</div>
       <h2 className="section-title">Transforming your healthcare journey</h2>
       <p className="section-desc">Experience a seamless path to better health, from intelligent symptom guidance to professional consultations.</p>
 
-      <div className="timeline-grid">
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        className="timeline-grid"
+      >
         {steps.map((s, i) => (
-          <div key={i} className="timeline-step fade-in" style={{ animationDelay: `${i * 0.15}s` }}>
+          <motion.div variants={fadeUpVariant} key={i} className="timeline-step">
             <div className="timeline-icon">{s.icon}</div>
             <div className="timeline-title">{s.title}</div>
             <div className="timeline-desc">{s.desc}</div>
             {i < steps.length - 1 && <div className="timeline-arrow">→</div>}
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <div className="section-label" style={{ marginTop: "4.5rem" }}>Care Plans</div>
       <h2 className="section-title">Choose the right plan for you</h2>
       <p className="section-desc">Empower your healthcare journey with AI-driven guidance and seamless care.</p>
 
-      <div className="plans-grid">
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        className="plans-grid"
+      >
         {plans.map((p, i) => (
-          <div key={p.name} className={`plan-card card ${p.pop ? 'plan-popular' : ''} fade-in`} style={{ animationDelay: `${i * 0.15}s` }}>
+          <motion.div 
+            variants={fadeUpVariant}
+            whileHover={{ y: -8, boxShadow: "0 12px 24px rgba(0,0,0,0.08)" }}
+            key={p.name} 
+            className={`plan-card card ${p.pop ? 'plan-popular' : ''}`}
+          >
             {p.pop && <div className="plan-badge">Most Popular</div>}
             <div className="plan-name">{p.name}</div>
             <div className="plan-desc">{p.desc}</div>
             <ul className="plan-features">
               {p.features.map(f => <li key={f}><span className="feature-check">✓</span> {f}</li>)}
             </ul>
-            <button className={`btn ${p.pop ? 'btn-primary' : 'btn-outline'} plan-btn`} onClick={() => setTab("chat")}>{p.btn}</button>
-          </div>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`btn ${p.pop ? 'btn-primary' : 'btn-outline'} plan-btn`} onClick={() => setTab("chat")}>{p.btn}</motion.button>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="cta-banner fade-in">
+      <motion.div 
+        variants={fadeUpVariant}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.5 }}
+        className="cta-banner"
+      >
         <h3>Ready to take control of your health?</h3>
         <p>Empower your healthcare journey with AI-driven guidance, seamless appointment booking, and personalized care—all in one secure platform.</p>
         <div className="cta-actions">
-          <button className="btn btn-primary" onClick={() => setTab("quiz")}>Start Your Journey</button>
-          <button className="btn btn-outline" onClick={() => setTab("chat")}>Book a Consultation</button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("quiz")}>Start Your Journey</motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("chat")}>Book a Consultation</motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -663,7 +800,12 @@ function Chat() {
   const QUICK = ["I keep putting it off", "I'm scared of bad news", "I can't afford it", "I don't have time"];
 
   return (
-    <div className="page-inner page-chat">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="page-inner page-chat"
+    >
       <div className="section-label">Talk it through</div>
       <h2 className="section-title">CareBridge is here for you</h2>
       <p className="section-desc">No forms, no registration. An honest conversation, in English, Hindi, or however you're comfortable.</p>
@@ -679,24 +821,39 @@ function Chat() {
         </div>
 
         <div className="chat-messages" ref={msgsRef}>
-          {messages.map((m, i) => (
-            <div key={i} className={`msg msg-${m.role}`}>
-              <div className="msg-bubble">{m.text}</div>
-            </div>
-          ))}
-          {loading && (
-            <div className="msg msg-bot">
-              <div className="msg-bubble typing-bubble">
-                <span /><span /><span />
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {messages.map((m, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={`msg msg-${m.role}`}
+              >
+                <div className="msg-bubble">{m.text}</div>
+              </motion.div>
+            ))}
+            {loading && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="msg msg-bot"
+              >
+                <div className="msg-bubble typing-bubble">
+                  <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }} />
+                  <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }} />
+                  <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {messages.length < 3 && (
           <div className="chat-quick">
             {QUICK.map((c) => (
-              <button key={c} className="quick-chip" onClick={() => sendMsg(c)}>{c}</button>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} key={c} className="quick-chip" onClick={() => sendMsg(c)}>{c}</motion.button>
             ))}
           </div>
         )}
@@ -724,7 +881,7 @@ function Chat() {
       <div className="crisis-banner" style={{ marginTop: "1rem" }}>
         🆘 <strong>In crisis?</strong> Call iCall: 9152987821 · Vandrevala: 1860 2662 345 · NIMHANS: 080 46110007
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -759,11 +916,13 @@ export default function App() {
   return (
     <>
       <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} />
-      {tab === "home" && <Home setTab={setTab} barriers={content.barriers} />}
-      {tab === "quiz" && <Quiz setTab={setTab} quizResult={quizResult} setQuizResult={setQuizResult} />}
-      {tab === "stories" && <Stories setTab={setTab} stories={content.stories} quizResult={quizResult} />}
-      {tab === "plans" && <CarePlans setTab={setTab} />}
-      {tab === "chat" && <Chat />}
+      <AnimatePresence mode="wait">
+        {tab === "home" && <Home key="home" setTab={setTab} barriers={content.barriers} />}
+        {tab === "quiz" && <Quiz key="quiz" setTab={setTab} quizResult={quizResult} setQuizResult={setQuizResult} />}
+        {tab === "stories" && <Stories key="stories" setTab={setTab} stories={content.stories} quizResult={quizResult} />}
+        {tab === "plans" && <CarePlans key="plans" setTab={setTab} />}
+        {tab === "chat" && <Chat key="chat" />}
+      </AnimatePresence>
     </>
   );
 }
