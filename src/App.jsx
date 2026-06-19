@@ -448,7 +448,6 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
                 className={`quiz-opt-card ${selectedOpt === idx ? 'selected' : ''}`} 
                 onClick={() => pick(o.val, idx)}
               >
-                <div className="opt-icon">{o.icon}</div>
                 <div className="opt-content">
                   <div className="opt-title">{o.title}</div>
                   <div className="opt-text">{o.text}</div>
