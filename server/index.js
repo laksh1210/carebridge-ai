@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import db from "./db.js";
+import "./seed.js";
 
 dotenv.config();
 
