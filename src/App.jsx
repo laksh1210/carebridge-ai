@@ -10,10 +10,10 @@ const QUIZ = [
     hint: "Take your time. We're here to understand your concerns, not judge them.",
     msg: "Getting started is the hardest part.",
     opts: [
-      { icon: "😟", title: "Dread", text: "I'm afraid of what they might discover", val: "fear" },
-      { icon: "😳", title: "Embarrassment", text: "I'm worried about what others will think", val: "stigma" },
-      { icon: "💼", title: "Busy Schedule", text: "I genuinely don't have enough time", val: "time" },
-      { icon: "💰", title: "Financial Concerns", text: "I'm worried treatment will be expensive", val: "cost" },
+      { icon: "", title: "Dread", text: "I'm afraid of what they might discover", val: "fear" },
+      { icon: "", title: "Embarrassment", text: "I'm worried about what others will think", val: "stigma" },
+      { icon: "", title: "Busy Schedule", text: "I genuinely don't have enough time", val: "time" },
+      { icon: "", title: "Financial Concerns", text: "I'm worried treatment will be expensive", val: "cost" },
     ],
   },
   {
@@ -21,10 +21,10 @@ const QUIZ = [
     hint: "There's no wrong answer. Honest responses help provide better guidance.",
     msg: "You're halfway to understanding your healthcare barriers.",
     opts: [
-      { icon: "🫂", title: "Yes, immediately", text: "Their health matters more than anything", val: "denial" },
-      { icon: "🤝", title: "Probably", text: "But I'd understand if they hesitated", val: "stigma" },
-      { icon: "⚖️", title: "Maybe", text: "It depends on how serious it seems", val: "denial" },
-      { icon: "⏳", title: "Wait and see", text: "I'd tell them to give it some time first", val: "fear" },
+      { icon: "", title: "Yes, immediately", text: "Their health matters more than anything", val: "denial" },
+      { icon: "", title: "Probably", text: "But I'd understand if they hesitated", val: "stigma" },
+      { icon: "", title: "Maybe", text: "It depends on how serious it seems", val: "denial" },
+      { icon: "", title: "Wait and see", text: "I'd tell them to give it some time first", val: "fear" },
     ],
   },
   {
@@ -32,10 +32,10 @@ const QUIZ = [
     hint: "Online searches often hide underlying worry.",
     msg: "Just one more step after this.",
     opts: [
-      { icon: "🔍", title: "Yes, multiple times", text: "It's been worrying me a lot", val: "fear" },
-      { icon: "🤔", title: "Once or twice", text: "I was just curious", val: "denial" },
-      { icon: "🙈", title: "No", text: "I prefer not to know", val: "fear" },
-      { icon: "😰", title: "Yes, it scared me", text: "The results made me more anxious", val: "fear" },
+      { icon: "", title: "Yes, multiple times", text: "It's been worrying me a lot", val: "fear" },
+      { icon: "", title: "Once or twice", text: "I was just curious", val: "denial" },
+      { icon: "", title: "No", text: "I prefer not to know", val: "fear" },
+      { icon: "", title: "Yes, it scared me", text: "The results made me more anxious", val: "fear" },
     ],
   },
   {
@@ -43,10 +43,10 @@ const QUIZ = [
     hint: "Choose what resonates most right now.",
     msg: "Almost done! We'll prepare your personalized insights.",
     opts: [
-      { icon: "💸", title: "Price Transparency", text: "Knowing exactly what it will cost beforehand", val: "cost" },
-      { icon: "🕶️", title: "Total Privacy", text: "A way to go without anyone knowing", val: "stigma" },
-      { icon: "📱", title: "Convenience", text: "A 15 minute appointment from my phone", val: "time" },
-      { icon: "🗺️", title: "Clear Expectations", text: "Someone explaining what to expect", val: "fear" },
+      { icon: "", title: "Price Transparency", text: "Knowing exactly what it will cost beforehand", val: "cost" },
+      { icon: "", title: "Total Privacy", text: "A way to go without anyone knowing", val: "stigma" },
+      { icon: "", title: "Convenience", text: "A 15 minute appointment from my phone", val: "time" },
+      { icon: "", title: "Clear Expectations", text: "Someone explaining what to expect", val: "fear" },
     ],
   },
 ];
@@ -531,17 +531,7 @@ function Stories({ stories = [], setTab, quizResult }) {
     });
   }
 
-  const getIcon = (cat) => {
-    switch (cat) {
-      case 'Cost': return '💰';
-      case 'Stigma': return '🤝';
-      case 'Time': return '⏳';
-      case 'Fear': return '🛡️';
-      case 'Distance': return '🗺️';
-      case 'Denial': return '🌤️';
-      default: return '💬';
-    }
-  };
+
 
   return (
     <motion.div 
@@ -559,7 +549,7 @@ function Stories({ stories = [], setTab, quizResult }) {
       {/* Search & Filters */}
       <div className="stories-controls">
         <div className="stories-search-wrapper">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon"></span>
           <input 
             type="text" 
             className="stories-search" 
@@ -602,9 +592,8 @@ function Stories({ stories = [], setTab, quizResult }) {
                 layout
                 className={`story-card-premium ${isSimilar ? 'similar-highlight' : ''}`}
               >
-                {isSimilar && <div className="similar-badge">✨ Similar to You</div>}
+                {isSimilar && <div className="similar-badge">Similar to You</div>}
                 <div className="story-premium-header">
-                  <div className="story-cat-icon">{getIcon(s.category)}</div>
                   <div className="story-tag-premium" style={{ background: s.tagBg, color: s.tagColor }}>{s.tag}</div>
                 </div>
                 
