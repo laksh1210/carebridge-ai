@@ -251,12 +251,10 @@ a { text-decoration: none; }
   box-shadow: 0 15px 30px rgba(139,94,60,.2); 
   filter: brightness(1.03); 
 }
-.impact-icon { 
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px; border-radius: 12px;
-  background: rgba(0,0,0,0.1); margin-bottom: 1rem;
+.impact-heading {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+  font-weight: 600; opacity: 0.8; margin-bottom: 0.5rem;
 }
-.impact-bg-4 .impact-icon, .impact-bg-2 .impact-icon { background: rgba(139,94,60,0.08); }
 .impact-num { font-family: 'Lora', serif; font-size: 2.8rem; font-weight: 500; margin-bottom: 0; line-height: 1.1; color: inherit; }
 .impact-label { font-size: .85rem; line-height: 1.5; color: inherit; opacity: 0.9; }
 

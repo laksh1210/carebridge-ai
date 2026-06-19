@@ -146,7 +146,7 @@ function Nav({ tab, setTab, dark, setDark }) {
   );
 }
 /* ── COUNT UP STAT ─────────────────────────────────── */
-function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000, icon, colorClass = "" }) {
+function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000, heading, colorClass = "" }) {
   const [count, setCount] = useState(fadeOnly ? endValue : 0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -187,7 +187,7 @@ function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = fal
 
   return (
     <div ref={ref} className={`impact-card ${isVisible ? 'fade-in-up' : ''} ${colorClass}`} style={{ opacity: isVisible ? 1 : 0 }}>
-      {icon && <div className="impact-icon">{icon}</div>}
+      {heading && <div className="impact-heading">{heading}</div>}
       <div className="impact-num">{prefix}{count}{suffix}</div>
       <div className="impact-label">{label}</div>
     </div>
@@ -211,7 +211,11 @@ function Home({ setTab, barriers = [] }) {
         </div>
         <div className="hero-right hero-graphic-container">
           <div className="hero-float">78% feel better after first step ✓</div>
-          <img src="/hero-compass.png" className="hero-graphic" alt="CareBridge Navigation" />
+          <div className="css-compass">
+            <div className="css-compass-inner">
+              <div className="css-compass-core" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -226,10 +230,10 @@ function Home({ setTab, barriers = [] }) {
         <h2 className="section-title">Making Healthcare More Accessible</h2>
         <p className="section-desc">CareBridge AI is designed to reduce barriers to care and empower users with intelligent guidance and seamless healthcare access.</p>
         <div className="impact-grid">
-          <CountUpStat endValue={67} suffix="%" label="People delay medical care due to emotional or practical barriers." icon="🗝️" colorClass="impact-bg-1" />
-          <CountUpStat endValue={54} suffix="%" label="Report feeling more confident after understanding their options." icon="🛡️" colorClass="impact-bg-2" />
-          <CountUpStat endValue={6} label="Key psychological barriers to care actively addressed by our AI." icon="🧠" colorClass="impact-bg-3" />
-          <CountUpStat endValue="24/7" fadeOnly={true} label="Always-available assistance and health information." icon="♾️" colorClass="impact-bg-4" />
+          <CountUpStat endValue={67} suffix="%" label="People delay medical care due to emotional or practical barriers." heading="Delayed Care" colorClass="impact-bg-1" />
+          <CountUpStat endValue={54} suffix="%" label="Report feeling more confident after understanding their options." heading="Increased Confidence" colorClass="impact-bg-2" />
+          <CountUpStat endValue={6} label="Key psychological barriers to care actively addressed by our AI." heading="Key Barriers" colorClass="impact-bg-3" />
+          <CountUpStat endValue="24/7" fadeOnly={true} label="Always-available assistance and health information." heading="Always Available" colorClass="impact-bg-4" />
         </div>
       </div>
 
