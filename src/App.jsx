@@ -432,21 +432,21 @@ function Chat() {
     setLoading(true);
     const newHist = [...history, { role: "user", content: msg }];
     try {
-      const res = await fetch("https://carebridge-ai-vhp0.onrender.com/analyze", {
+      const res = await fetch("https://carebridge-ai-vhp0.onrender.com/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg }),
       });
       const data = await res.json();
-      // Try to parse JSON result, fall back to raw text
-      let reply = "";
-      try {
-        const cleaned = data.result.replace(/```json/g, "").replace(/```/g, "").trim();
-        const parsed = JSON.parse(cleaned);
-        reply = parsed.encouragement || parsed.summary || parsed.nextStep || data.result;
-      } catch {
-        reply = data.result || "I'm here — can you tell me a bit more about what's stopping you?";
+
+      // Rate limited
+      if (res.status === 429) {
+        setMessages([...newMsgs, { role: "bot", text: `⏳ ${data.message}` }]);
+        setLoading(false);
+        return;
       }
+
+      const reply = data.reply || data.result || "I'm here — can you tell me a bit more about what's stopping you?";
       setHistory([...newHist, { role: "assistant", content: reply }]);
       setMessages([...newMsgs, { role: "bot", text: reply }]);
     } catch {
