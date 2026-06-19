@@ -109,34 +109,7 @@ const RESULTS = {
   },
 };
 
-const STORIES = [
-  { tag: "Fear of diagnosis", tagColor: "#993C1D", tagBg: "#FAECE7", quote: "I kept telling myself the lump would go away. Two months later, CareBridge helped me admit I was just scared. The clinic visit took an hour.", name: "Priya, 34 · Pune", outcome: "Caught and treated early. Now healthy." },
-  { tag: "Masculinity norms", tagColor: "#854F0B", tagBg: "#FAEEDA", quote: "I was having chest pain for weeks. Men in my family don't go to the doctor. My friend showed me this app. I finally went.", name: "Rahul, 42 · Nagpur", outcome: "Caught early stage hypertension. On medication now." },
-  { tag: "Cost concern", tagColor: "#085041", tagBg: "#E1F5EE", quote: "I thought it would cost thousands. CareBridge showed me the PHC near me is free under PMJAY. I spent ₹0.", name: "Meena, 28 · Hyderabad", outcome: "Full diagnosis. Zero out of pocket cost." },
-  { tag: "Time constraint", tagColor: "#3C3489", tagBg: "#EEEDFE", quote: "I work six days a week. The app booked a 15 minute WhatsApp consult. The doctor called during my lunch break.", name: "Arjun, 31 · Bengaluru", outcome: "Diagnosed and treated without missing a shift." },
-  { tag: "Social stigma", tagColor: "#993C1D", tagBg: "#FAECE7", quote: "Mental health is not talked about in our community. Talking anonymously through this helped me realise I wasn't alone.", name: "Sunita, 26 · Jaipur", outcome: "Now receiving counselling. First month of therapy done." },
-  { tag: "Denial", tagColor: "#444441", tagBg: "#F1EFE8", quote: "I thought my sugar numbers were fine until CareBridge walked me through what the symptoms meant. Turned out I needed to act fast.", name: "Vikram, 55 · Chennai", outcome: "Blood sugar stabilised within 8 weeks of treatment." },
-];
-
-const COSTS = [
-  { label: "Government PHC / CHC visit", sub: "Primary Health Centre, covers most common illnesses", val: "₹0", free: true },
-  { label: "eSanjeevani telemedicine", sub: "Free government video consultation, no travel needed", val: "₹0", free: true },
-  { label: "PMJAY / Ayushman Bharat", sub: "Covers ₹5 lakh/year hospitalisation for eligible families", val: "₹0", free: true },
-  { label: "General GP consultation", sub: "Private clinic, most Indian cities", val: "₹200 to ₹400", free: false },
-  { label: "Blood test (basic panel)", sub: "CBC, sugar, thyroid, private lab", val: "₹400 to ₹800", free: false },
-  { label: "Jan Aushadhi generic medicine", sub: "50 to 80% cheaper than branded equivalents", val: "50% to 80%", free: false },
-];
-
-
-const BARRIERS_INFO = [
-  { icon: "/fear.png", name: "Fear of diagnosis", desc: "Worrying that confirming a problem makes it worse. Early detection consistently leads to better outcomes." },
-  { icon: "/stigma.png", name: "Social stigma", desc: "Fear of judgment from family or community, especially for mental health or reproductive issues." },
-  { icon: "/masculinity.png", name: "Masculinity norms", desc: '"Be strong, it\'ll pass." Men are 40% less likely to seek care early. Vulnerability is strength.' },
-  { icon: "/cost.png", name: "Cost concerns", desc: "Most basic consultations cost ₹200 to ₹500. PMJAY covers ₹5 lakh per family. Help is affordable." },
-  { icon: "/time.png", name: "Lack of time", desc: "Telemedicine appointments take 15 minutes. You don't have to leave work." },
-  { icon: "/denial.png", name: "Denial", desc: '"It will go away." Sometimes it does, but knowing when to check is what CareBridge helps with.' },
-];
-
+/* Content fetched from API */
 /* ── NAV ───────────────────────────────────────────── */
 function Nav({ tab, setTab, dark, setDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -174,7 +147,7 @@ function Nav({ tab, setTab, dark, setDark }) {
 }
 
 /* ── HOME ──────────────────────────────────────────── */
-function Home({ setTab }) {
+function Home({ setTab, barriers = [] }) {
   return (
     <div className="page-home">
       <div className="hero">
@@ -229,7 +202,7 @@ function Home({ setTab }) {
           ))}
         </div>
         <div className="barriers-grid">
-          {BARRIERS_INFO.map((b) => (
+          {barriers.map((b) => (
             <div key={b.name} className="barrier-card">
               <div className="barrier-icon">
                 <img src={b.icon} alt={b.name} />
@@ -274,6 +247,12 @@ function Quiz({ setTab }) {
       next.forEach((v) => { tally[v] = (tally[v] || 0) + 1; });
       const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0][0];
       setResult(RESULTS[top]);
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      fetch(`${API_URL}/api/quiz`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ primaryBarrier: top })
+      }).catch(e => console.error(e));
     } else {
       setStep(step + 1);
     }
@@ -330,14 +309,14 @@ function Quiz({ setTab }) {
 }
 
 /* ── STORIES ───────────────────────────────────────── */
-function Stories() {
+function Stories({ stories = [] }) {
   return (
     <div className="page-inner">
       <div className="section-label">Real voices</div>
       <h2 className="section-title">People just like you who took the step</h2>
       <p className="section-desc">Names changed for privacy, but the journeys are real.</p>
       <div className="stories-grid">
-        {STORIES.map((s) => (
+        {stories.map((s) => (
           <div key={s.name} className="story-card card">
             <div className="story-tag" style={{ background: s.tagBg, color: s.tagColor }}>{s.tag}</div>
             <p className="story-quote">"{s.quote}"</p>
@@ -418,6 +397,17 @@ function Chat() {
     { role: "bot", text: "Hi there 👋 I'm CareBridge. Whatever's making you hesitate about seeing a doctor, I'm here to listen, not lecture. What's been on your mind?" },
   ]);
   const [input, setInput] = useState("");
+  const [feedbackGiven, setFeedbackGiven] = useState(false);
+
+  const handleFeedback = (rating) => {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    fetch(`${API_URL}/api/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "chat", rating, comment: "" })
+    }).catch(e => console.error(e));
+    setFeedbackGiven(true);
+  };
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
   const msgsRef = useRef(null);
@@ -500,6 +490,14 @@ function Chat() {
           </div>
         )}
 
+        {messages.length > 2 && !feedbackGiven && (
+          <div className="chat-feedback" style={{ padding: "0.5rem", textAlign: "center", fontSize: "0.8rem", color: "var(--text-soft)", borderTop: "1px solid var(--border)" }}>
+            Was this conversation helpful? 
+            <button onClick={() => handleFeedback(1)} style={{ background: "none", border: "none", cursor: "pointer", marginLeft: "10px", fontSize: "1.2rem" }}>👍</button>
+            <button onClick={() => handleFeedback(-1)} style={{ background: "none", border: "none", cursor: "pointer", marginLeft: "10px", fontSize: "1.2rem" }}>👎</button>
+          </div>
+        )}
+
         <div className="chat-input-row">
           <input
             className="chat-input"
@@ -523,17 +521,35 @@ function Chat() {
 export default function App() {
   const [tab, setTab] = useState("home");
   const [dark, setDark] = useState(false);
+  const [content, setContent] = useState({ barriers: [], stories: [] });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   }, [dark]);
 
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    fetch(`${API_URL}/api/content`)
+      .then(res => res.json())
+      .then(data => {
+        setContent({ barriers: data.barriers || [], stories: data.stories || [] });
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load content", err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div style={{ padding: "2rem", textAlign: "center" }}>Loading CareBridge...</div>;
+
   return (
     <>
       <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} />
-      {tab === "home" && <Home setTab={setTab} />}
+      {tab === "home" && <Home setTab={setTab} barriers={content.barriers} />}
       {tab === "quiz" && <Quiz setTab={setTab} />}
-      {tab === "stories" && <Stories />}
+      {tab === "stories" && <Stories stories={content.stories} />}
       {tab === "plans" && <CarePlans setTab={setTab} />}
       {tab === "chat" && <Chat />}
     </>

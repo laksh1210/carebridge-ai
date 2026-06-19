@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import db from "./db.js";
 
 dotenv.config();
 
@@ -75,6 +76,53 @@ const CRISIS_RESPONSE = {
   nextStep: "Call iCall now: 9152987821 · Vandrevala Foundation: 1860 2662 345 · NIMHANS: 080 46110007",
   isCrisis: true,
 };
+
+/* ── PRIORITY 3: CONTENT API ───────────────────────── */
+app.get("/api/content", (req, res) => {
+  try {
+    const rows = db.prepare("SELECT key, value FROM content").all();
+    const content = {};
+    for (const row of rows) {
+      content[row.key] = JSON.parse(row.value);
+    }
+    res.json(content);
+  } catch (error) {
+    console.error("[ERROR]", error);
+    res.status(500).json({ error: "Failed to fetch content" });
+  }
+});
+
+/* ── PRIORITY 4: QUIZ RESULT API ───────────────────── */
+app.post("/api/quiz", (req, res) => {
+  try {
+    const { primaryBarrier } = req.body;
+    if (!primaryBarrier) {
+      return res.status(400).json({ error: "Primary barrier is required" });
+    }
+    const stmt = db.prepare("INSERT INTO quiz_results (primary_barrier) VALUES (@primaryBarrier)");
+    stmt.run({ primaryBarrier });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[ERROR]", error);
+    res.status(500).json({ error: "Failed to save quiz result" });
+  }
+});
+
+/* ── PRIORITY 5: FEEDBACK API ──────────────────────── */
+app.post("/api/feedback", (req, res) => {
+  try {
+    const { source, rating, comment } = req.body;
+    if (!source || rating === undefined) {
+      return res.status(400).json({ error: "Source and rating are required" });
+    }
+    const stmt = db.prepare("INSERT INTO feedback (source, rating, comment) VALUES (@source, @rating, @comment)");
+    stmt.run({ source, rating, comment: comment || null });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[ERROR]", error);
+    res.status(500).json({ error: "Failed to save feedback" });
+  }
+});
 
 /* ── /analyze ENDPOINT ─────────────────────────────── */
 app.post("/analyze", rateLimit, async (req, res) => {
