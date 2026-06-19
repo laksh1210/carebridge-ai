@@ -129,18 +129,18 @@ const COSTS = [
 
 
 const BARRIERS_INFO = [
-  { icon: "😰", name: "Fear of diagnosis", desc: "Worrying that confirming a problem makes it worse. Early detection consistently leads to better outcomes." },
-  { icon: "🗣️", name: "Social stigma", desc: "Fear of judgment from family or community, especially for mental health or reproductive issues." },
-  { icon: "💪", name: "Masculinity norms", desc: '"Be strong, it\'ll pass." Men are 40% less likely to seek care early. Vulnerability is strength.' },
-  { icon: "💸", name: "Cost concerns", desc: "Most basic consultations cost ₹200 to ₹500. PMJAY covers ₹5 lakh per family. Help is affordable." },
-  { icon: "⏱️", name: "Lack of time", desc: "Telemedicine appointments take 15 minutes. You don't have to leave work." },
-  { icon: "🙈", name: "Denial", desc: '"It will go away." Sometimes it does, but knowing when to check is what CareBridge helps with.' },
+  { icon: "/fear.png", name: "Fear of diagnosis", desc: "Worrying that confirming a problem makes it worse. Early detection consistently leads to better outcomes." },
+  { icon: "/stigma.png", name: "Social stigma", desc: "Fear of judgment from family or community, especially for mental health or reproductive issues." },
+  { icon: "/masculinity.png", name: "Masculinity norms", desc: '"Be strong, it\'ll pass." Men are 40% less likely to seek care early. Vulnerability is strength.' },
+  { icon: "/cost.png", name: "Cost concerns", desc: "Most basic consultations cost ₹200 to ₹500. PMJAY covers ₹5 lakh per family. Help is affordable." },
+  { icon: "/time.png", name: "Lack of time", desc: "Telemedicine appointments take 15 minutes. You don't have to leave work." },
+  { icon: "/denial.png", name: "Denial", desc: '"It will go away." Sometimes it does, but knowing when to check is what CareBridge helps with.' },
 ];
 
 /* ── NAV ───────────────────────────────────────────── */
 function Nav({ tab, setTab, dark, setDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const tabs = ["home", "quiz", "stories", "costs", "chat"];
+  const tabs = ["home", "quiz", "stories", "plans", "chat"];
   return (
     <nav className="nav">
       <button className="nav-logo" onClick={() => setTab("home")}>
@@ -185,7 +185,7 @@ function Home({ setTab }) {
           <div className="hero-actions">
             <button className="btn btn-primary" onClick={() => setTab("quiz")}>Find your barrier →</button>
             <button className="btn btn-outline" onClick={() => setTab("chat")}>Talk it through</button>
-            <button className="btn btn-outline" onClick={() => setTab("costs")}>View Healthcare Costs</button>
+            <button className="btn btn-outline" onClick={() => setTab("plans")}>View Care Plans</button>
           </div>
         </div>
         <div className="hero-right">
@@ -231,7 +231,9 @@ function Home({ setTab }) {
         <div className="barriers-grid">
           {BARRIERS_INFO.map((b) => (
             <div key={b.name} className="barrier-card">
-              <div className="barrier-icon">{b.icon}</div>
+              <div className="barrier-icon">
+                <img src={b.icon} alt={b.name} />
+              </div>
               <div className="barrier-name">{b.name}</div>
               <div className="barrier-desc">{b.desc}</div>
             </div>
@@ -317,7 +319,7 @@ function Quiz({ setTab }) {
           <div className="result-actions">
             <button className="btn btn-primary" onClick={() => setTab("chat")}>Talk to CareBridge about this →</button>
             {result === RESULTS.cost && (
-              <button className="btn btn-primary" onClick={() => setTab("costs")}>View Healthcare Costs →</button>
+              <button className="btn btn-primary" onClick={() => setTab("plans")}>View Care Plans →</button>
             )}
             <button className="btn btn-outline" onClick={reset}>Retake quiz</button>
           </div>
@@ -348,43 +350,62 @@ function Stories() {
   );
 }
 
-/* ── COSTS ─────────────────────────────────────────── */
-function Costs() {
+/* ── CARE PLANS ────────────────────────────────────── */
+function CarePlans({ setTab }) {
+  const steps = [
+    { icon: "👤", title: "Create Your Account", desc: "Sign up securely and set up your personal health profile in minutes." },
+    { icon: "🤖", title: "Describe Symptoms", desc: "Use the AI-powered assistant to explain your concerns and receive intelligent guidance." },
+    { icon: "🩺", title: "Connect with Pros", desc: "Book appointments or consult verified medical experts based on your needs." },
+    { icon: "📈", title: "Track Wellness", desc: "Manage appointments, monitor progress, and keep your healthcare journey organized." },
+  ];
+
+  const plans = [
+    { name: "Starter", desc: "Best for individuals beginning their digital healthcare journey.", features: ["AI symptom guidance", "Appointment scheduling", "Health reminders", "Secure profile management"], btn: "Get Started", pop: false },
+    { name: "Family", desc: "Designed for households managing multiple family members.", features: ["Everything in Starter", "Multiple patient profiles", "Shared health records", "Priority appointment booking", "Family health dashboard"], btn: "Choose Family Plan", pop: true },
+    { name: "Premium", desc: "Ideal for users seeking an enhanced healthcare experience.", features: ["Everything in Family", "Priority support", "Advanced health insights", "Faster consultation access", "Comprehensive wellness tracking"], btn: "Explore Premium", pop: false },
+  ];
+
   return (
-    <div className="page-inner">
-      <div className="section-label">Transparency</div>
-      <h2 className="section-title">Healthcare costs, demystified</h2>
-      <p className="section-desc">Cost anxiety is real, so here's what things actually cost in India, including what you can access for free.</p>
-      <div className="card cost-card">
-        <div className="cost-header">
-          <h3>Common healthcare touchpoints</h3>
-          <span className="cost-badge">Updated 2024</span>
-        </div>
-        {COSTS.map((c) => (
-          <div key={c.label} className="cost-row">
-            <div>
-              <div className="cost-label">{c.label}</div>
-              <div className="cost-sub">{c.sub}</div>
-            </div>
-            <div className={`cost-val ${c.free ? "cost-free" : ""}`}>{c.val}</div>
+    <div className="page-inner page-plans">
+      <div className="section-label">How It Works</div>
+      <h2 className="section-title">Transforming your healthcare journey</h2>
+      <p className="section-desc">Experience a seamless path to better health, from intelligent symptom guidance to professional consultations.</p>
+
+      <div className="timeline-grid">
+        {steps.map((s, i) => (
+          <div key={i} className="timeline-step fade-in" style={{ animationDelay: `${i * 0.15}s` }}>
+            <div className="timeline-icon">{s.icon}</div>
+            <div className="timeline-title">{s.title}</div>
+            <div className="timeline-desc">{s.desc}</div>
+            {i < steps.length - 1 && <div className="timeline-arrow">→</div>}
           </div>
         ))}
       </div>
-      <div className="gov-resources">
-        <div className="section-label" style={{ marginBottom: "1rem" }}>Government resources</div>
-        <div className="gov-grid">
-          {[
-            { name: "PHC / CHC", desc: "General consultations", cost: "Free", url: "https://nhp.gov.in" },
-            { name: "eSanjeevani", desc: "Telemedicine", cost: "Free", url: "https://esanjeevaniopd.in" },
-            { name: "PMJAY / Ayushman Bharat", desc: "Hospitalisation ₹5L/year", cost: "Free", url: "https://pmjay.gov.in" },
-            { name: "Jan Aushadhi", desc: "Generic medicines", cost: "50 to 80% cheaper", url: "https://janaushadhi.gov.in" },
-          ].map((r) => (
-            <a key={r.name} href={r.url} target="_blank" rel="noreferrer" className="gov-card card">
-              <div className="gov-name">{r.name}</div>
-              <div className="gov-desc">{r.desc}</div>
-              <div className="gov-cost">{r.cost}</div>
-            </a>
-          ))}
+
+      <div className="section-label" style={{ marginTop: "4.5rem" }}>Care Plans</div>
+      <h2 className="section-title">Choose the right plan for you</h2>
+      <p className="section-desc">Empower your healthcare journey with AI-driven guidance and seamless care.</p>
+
+      <div className="plans-grid">
+        {plans.map((p, i) => (
+          <div key={p.name} className={`plan-card card ${p.pop ? 'plan-popular' : ''} fade-in`} style={{ animationDelay: `${i * 0.15}s` }}>
+            {p.pop && <div className="plan-badge">Most Popular</div>}
+            <div className="plan-name">{p.name}</div>
+            <div className="plan-desc">{p.desc}</div>
+            <ul className="plan-features">
+              {p.features.map(f => <li key={f}><span className="feature-check">✓</span> {f}</li>)}
+            </ul>
+            <button className={`btn ${p.pop ? 'btn-primary' : 'btn-outline'} plan-btn`} onClick={() => setTab("chat")}>{p.btn}</button>
+          </div>
+        ))}
+      </div>
+
+      <div className="cta-banner fade-in">
+        <h3>Ready to take control of your health?</h3>
+        <p>Empower your healthcare journey with AI-driven guidance, seamless appointment booking, and personalized care—all in one secure platform.</p>
+        <div className="cta-actions">
+          <button className="btn btn-primary" onClick={() => setTab("quiz")}>Start Your Journey</button>
+          <button className="btn btn-outline" onClick={() => setTab("chat")}>Book a Consultation</button>
         </div>
       </div>
     </div>
@@ -513,7 +534,7 @@ export default function App() {
       {tab === "home" && <Home setTab={setTab} />}
       {tab === "quiz" && <Quiz setTab={setTab} />}
       {tab === "stories" && <Stories />}
-      {tab === "costs" && <Costs />}
+      {tab === "plans" && <CarePlans setTab={setTab} />}
       {tab === "chat" && <Chat />}
     </>
   );
