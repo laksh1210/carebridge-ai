@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import './index.css';
 import logoImg from './logo.jpg';
-import heroHeartImg from './assets/hero_heart_3d.png';
-
+import isoHeartImg from './assets/iso_heart.png';
+import isoStethImg from './assets/iso_steth.png';
 /* ── QUIZ DATA ─────────────────────────────────────── */
 const QUIZ = [
   {
@@ -275,22 +275,38 @@ function Home({ setTab, barriers = [] }) {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
           className="hero-right hero-graphic-container"
         >
-          <motion.div 
-            animate={{ scale: [1, 1.05, 1, 1.05, 1] }}
-            transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut", repeatDelay: 1 }}
-            className="hero-graphic-wrapper" 
-            style={{ 
-              position: 'relative', 
-              width: '360px', 
-              height: '360px', 
-              borderRadius: '50%', 
-              overflow: 'hidden', 
-              boxShadow: '0 20px 40px rgba(139,94,60,0.2)',
-              border: '6px solid var(--surface)'
-            }}
-          >
-            <img src={heroHeartImg} alt="Realistic Heart and Stethoscope" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </motion.div>
+          <div className="hero-graphic-wrapper" style={{ position: 'relative', width: '340px', height: '340px', borderRadius: '50%', background: 'var(--brand-lt)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 0 40px rgba(139,94,60,0.05)' }}>
+            
+            {/* Beeping Heart - Exact Shape Pumping */}
+            <motion.div
+              animate={{ scale: [1, 1.15, 1, 1.15, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", repeatDelay: 1 }}
+              style={{ position: 'absolute', zIndex: 3, width: '180px', height: '180px' }}
+            >
+              <img src={isoHeartImg} alt="Beating Heart" style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+            </motion.div>
+            
+            {/* Moving Stethoscope Around It */}
+            <motion.div
+              animate={{ rotate: [0, -4, 2, 0], y: [0, -5, 2, 0] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+              style={{ position: 'absolute', zIndex: 2, top: '-5%', right: '-10%', width: '320px', height: '320px', pointerEvents: 'none' }}
+            >
+              <img src={isoStethImg} alt="Stethoscope" style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'multiply', opacity: 0.9 }} />
+            </motion.div>
+
+            {/* Background glowing rings */}
+            <motion.div 
+              animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.2, 0.5] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+              style={{ position: 'absolute', width: '80%', height: '80%', borderRadius: '50%', border: '1px dashed var(--brand)', opacity: 0.3, zIndex: 1 }}
+            />
+            <motion.div 
+              animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.1, 0.3] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '50%', border: '1px dashed var(--brand)', opacity: 0.2, zIndex: 1 }}
+            />
+          </div>
         </motion.div>
       </div>
 
