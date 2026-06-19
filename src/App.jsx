@@ -489,7 +489,7 @@ function Chat() {
   const [feedbackGiven, setFeedbackGiven] = useState(false);
 
   const handleFeedback = (rating) => {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    const API_URL = import.meta.env.DEV ? `http://${window.location.hostname}:3001` : "https://carebridge-ai-vhp0.onrender.com";
     fetch(`${API_URL}/api/feedback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -514,7 +514,7 @@ function Chat() {
     setLoading(true);
     const newHist = [...history, { role: "user", content: msg }];
     try {
-      const API_URL = import.meta.env.DEV ? "http://localhost:3001" : "https://carebridge-ai-vhp0.onrender.com";
+      const API_URL = import.meta.env.DEV ? `http://${window.location.hostname}:3001` : "https://carebridge-ai-vhp0.onrender.com";
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -618,7 +618,7 @@ export default function App() {
   }, [dark]);
 
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3001`;
+    const API_URL = import.meta.env.DEV ? `http://${window.location.hostname}:3001` : "https://carebridge-ai-vhp0.onrender.com";
     fetch(`${API_URL}/api/content`)
       .then(res => res.json())
       .then(data => {
