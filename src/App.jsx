@@ -247,19 +247,7 @@ function Home({ setTab, barriers = [] }) {
         <div className="section-label">Understanding hesitation</div>
         <h2 className="section-title">The six barriers CareBridge addresses</h2>
         <p className="section-desc">These aren't excuses, they are real psychological patterns. Recognising yours is the first step toward care.</p>
-        <div className="stats-row">
-          {[
-            { n: "67%", l: "of Indians delay care due to fear of diagnosis" },
-            { n: "54%", l: "cite cost uncertainty as the primary barrier" },
-            { n: "41%", l: "of men say stigma stops them seeking mental health help" },
-            { n: "3.2×", l: "more likely to act after reading a relatable story" },
-          ].map((s) => (
-            <div key={s.n} className="stat-card">
-              <div className="stat-num">{s.n}</div>
-              <div className="stat-label">{s.l}</div>
-            </div>
-          ))}
-        </div>
+
         <div className="barriers-grid">
           {barriers.map((b) => (
             <div key={b.name} className="barrier-card">
