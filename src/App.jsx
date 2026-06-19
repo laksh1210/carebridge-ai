@@ -117,8 +117,8 @@ function Nav({ tab, setTab, dark, setDark }) {
   return (
     <nav className="nav">
       <button className="nav-logo" onClick={() => setTab("home")}>
-        <div className="nav-logo-dot">⚕</div>
-        CareBridge
+        <img src="/logo.jpg" alt="CareBridge AI Logo" className="nav-logo-img" />
+        CareBridge AI
       </button>
       <div className="nav-tabs">
         {tabs.map((t) => (
