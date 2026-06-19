@@ -52,6 +52,7 @@ const QUIZ = [
 
 const RESULTS = {
   fear: {
+    id: "fear",
     label: "Fear of diagnosis",
     color: "#993C1D", bg: "#FAECE7",
     name: "Your barrier: fear of what you might hear",
@@ -64,6 +65,7 @@ const RESULTS = {
     ],
   },
   stigma: {
+    id: "stigma",
     label: "Social stigma",
     color: "#854F0B", bg: "#FAEEDA",
     name: "Your barrier: fear of what others will think",
@@ -76,6 +78,7 @@ const RESULTS = {
     ],
   },
   time: {
+    id: "time",
     label: "Time constraint",
     color: "#3C3489", bg: "#EEEDFE",
     name: "Your barrier: you're genuinely too busy",
@@ -88,6 +91,7 @@ const RESULTS = {
     ],
   },
   cost: {
+    id: "cost",
     label: "Cost concern",
     color: "#085041", bg: "#E1F5EE",
     name: "Your barrier: worry about what it will cost",
@@ -100,6 +104,7 @@ const RESULTS = {
     ],
   },
   denial: {
+    id: "denial",
     label: "Denial / uncertainty",
     color: "#444441", bg: "#F1EFE8",
     name: "Your barrier: hoping it goes away on its own",
@@ -281,10 +286,9 @@ function Home({ setTab, barriers = [] }) {
 }
 
 /* ── QUIZ ──────────────────────────────────────────── */
-function Quiz({ setTab }) {
+function Quiz({ setTab, quizResult, setQuizResult }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [result, setResult] = useState(null);
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -309,7 +313,7 @@ function Quiz({ setTab }) {
             body: JSON.stringify({ barrierId: top, answers: newAns })
           }).catch(err => console.error("Analytics error:", err));
 
-          setResult(RESULTS[top]);
+          setQuizResult(RESULTS[top]);
         } else {
           setStep(step + 1);
         }
@@ -317,7 +321,7 @@ function Quiz({ setTab }) {
     }, 600);
   };
 
-  const reset = () => { setStep(0); setAnswers([]); setResult(null); setSelectedOpt(null); setIsTransitioning(false); };
+  const reset = () => { setStep(0); setAnswers([]); setQuizResult(null); setSelectedOpt(null); setIsTransitioning(false); };
 
   return (
     <div className="page-inner quiz-page-bg">
@@ -329,7 +333,7 @@ function Quiz({ setTab }) {
         </div>
       </div>
 
-      {!result ? (
+      {!quizResult ? (
         <div className={`card quiz-card ${isTransitioning ? 'fade-out' : 'fade-in-up'}`}>
           <div className="quiz-progress-wrapper">
             <div className="quiz-progress-circles">
@@ -367,15 +371,15 @@ function Quiz({ setTab }) {
           <div className="result-top-indicator">Analysis Complete • 92% Confidence</div>
           <div className="result-header">
             <div className="result-pre-title">Your Primary Barrier</div>
-            <div className="result-tag" style={{ background: result.bg, color: result.color }}>{result.label}</div>
+            <div className="result-tag" style={{ background: quizResult.bg, color: quizResult.color }}>{quizResult.label}</div>
           </div>
           
-          <p className="result-body">{result.body}</p>
+          <p className="result-body">{quizResult.body}</p>
           
           <div className="steps-premium-box">
             <div className="steps-label">Recommended Next Steps</div>
             <div className="result-steps-clean">
-              {result.steps.map((s, i) => (
+              {quizResult.steps.map((s, i) => (
                 <div key={i} className="result-step-clean">
                   <span className="step-check">✓</span>
                   <span>{s}</span>
@@ -386,7 +390,7 @@ function Quiz({ setTab }) {
           
           <div className="result-actions-stack">
             <button className="btn btn-primary btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</button>
-            {result === RESULTS.cost && (
+            {quizResult === RESULTS.cost && (
               <button className="btn btn-primary" onClick={() => setTab("plans")}>View Care Plans →</button>
             )}
             <button className="btn btn-outline" onClick={reset}>Retake quiz</button>
@@ -398,21 +402,139 @@ function Quiz({ setTab }) {
 }
 
 /* ── STORIES ───────────────────────────────────────── */
-function Stories({ stories = [] }) {
+function Stories({ stories = [], setTab, quizResult }) {
+  const [filter, setFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedStory, setExpandedStory] = useState(null);
+
+  const categories = ["All", "Cost", "Stigma", "Time", "Fear", "Distance", "Denial"];
+
+  const getRecommendedCategory = () => {
+    if (!quizResult) return null;
+    if (quizResult.id === "masculinity") return "Stigma";
+    const match = categories.find(c => c.toLowerCase() === quizResult.id?.toLowerCase());
+    return match || null;
+  };
+
+  const recCat = getRecommendedCategory();
+
+  let displayStories = [...stories];
+
+  // Apply Search
+  if (searchQuery) {
+    displayStories = displayStories.filter(s => 
+      s.quote.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.tag.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
+  // Apply Filter
+  if (filter !== "All") {
+    displayStories = displayStories.filter(s => s.category === filter);
+  }
+
+  // Prioritize Recommended
+  if (recCat && filter === "All" && !searchQuery) {
+    displayStories.sort((a, b) => {
+      if (a.category === recCat && b.category !== recCat) return -1;
+      if (a.category !== recCat && b.category === recCat) return 1;
+      return 0;
+    });
+  }
+
+  const getIcon = (cat) => {
+    switch (cat) {
+      case 'Cost': return '💰';
+      case 'Stigma': return '🤝';
+      case 'Time': return '⏳';
+      case 'Fear': return '🛡️';
+      case 'Distance': return '🗺️';
+      case 'Denial': return '🌤️';
+      default: return '💬';
+    }
+  };
+
   return (
-    <div className="page-inner">
+    <div className="page-inner page-stories">
       <div className="section-label">Real voices</div>
       <h2 className="section-title">People just like you who took the step</h2>
       <p className="section-desc">Names changed for privacy, but the journeys are real.</p>
-      <div className="stories-grid">
-        {stories.map((s) => (
-          <div key={s.name} className="story-card card">
-            <div className="story-tag" style={{ background: s.tagBg, color: s.tagColor }}>{s.tag}</div>
-            <p className="story-quote">"{s.quote}"</p>
-            <div className="story-name">{s.name}</div>
-            <div className="story-outcome">✓ {s.outcome}</div>
-          </div>
-        ))}
+
+      {/* Search & Filters */}
+      <div className="stories-controls">
+        <div className="stories-search-wrapper">
+          <span className="search-icon">🔍</span>
+          <input 
+            type="text" 
+            className="stories-search" 
+            placeholder="Find a story that resonates with you..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="stories-filters">
+          {categories.map(c => (
+            <button 
+              key={c} 
+              className={`filter-chip ${filter === c ? 'active' : ''}`}
+              onClick={() => setFilter(c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="stories-grid-premium">
+        {displayStories.length === 0 ? (
+          <div className="no-stories">No stories found matching your criteria.</div>
+        ) : (
+          displayStories.map((s, i) => {
+            const isSimilar = recCat && s.category === recCat;
+            const isExpanded = expandedStory === s.name;
+            return (
+              <div 
+                key={s.name} 
+                className={`story-card-premium fade-in-up ${isSimilar ? 'similar-highlight' : ''}`}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                {isSimilar && <div className="similar-badge">✨ Similar to You</div>}
+                <div className="story-premium-header">
+                  <div className="story-cat-icon">{getIcon(s.category)}</div>
+                  <div className="story-tag-premium" style={{ background: s.tagBg, color: s.tagColor }}>{s.tag}</div>
+                </div>
+                
+                <p className={`story-premium-quote ${isExpanded ? 'expanded' : ''}`}>
+                  "{s.quote}"
+                </p>
+                
+                {s.quote.length > 120 && (
+                  <button className="read-more-btn" onClick={() => setExpandedStory(isExpanded ? null : s.name)}>
+                    {isExpanded ? 'Read Less' : 'Read More'}
+                  </button>
+                )}
+
+                <div className="story-premium-footer">
+                  <div className="story-premium-name">{s.name}</div>
+                  <div className="story-premium-outcome">
+                    <span className="outcome-check">✓</span> {s.outcome}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* CTA SECTION */}
+      <div className="stories-cta fade-in-up" style={{ animationDelay: '0.4s' }}>
+        <h2>Your journey can start today.</h2>
+        <p>Thousands of people overcome healthcare barriers by taking one small first step. Discover yours in under 90 seconds.</p>
+        <div className="cta-actions">
+          <button className="btn btn-primary btn-large" onClick={() => setTab("quiz")}>Take the Barrier Quiz</button>
+          <button className="btn btn-outline btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</button>
+        </div>
       </div>
     </div>
   );
@@ -612,6 +734,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [content, setContent] = useState({ barriers: [], stories: [] });
   const [loading, setLoading] = useState(true);
+  const [quizResult, setQuizResult] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
@@ -637,8 +760,8 @@ export default function App() {
     <>
       <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} />
       {tab === "home" && <Home setTab={setTab} barriers={content.barriers} />}
-      {tab === "quiz" && <Quiz setTab={setTab} />}
-      {tab === "stories" && <Stories stories={content.stories} />}
+      {tab === "quiz" && <Quiz setTab={setTab} quizResult={quizResult} setQuizResult={setQuizResult} />}
+      {tab === "stories" && <Stories setTab={setTab} stories={content.stories} quizResult={quizResult} />}
       {tab === "plans" && <CarePlans setTab={setTab} />}
       {tab === "chat" && <Chat />}
     </>
