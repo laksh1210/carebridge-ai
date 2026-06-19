@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import './index.css';
 import logoImg from './logo.jpg';
+import heroHeartImg from './assets/hero_heart_3d.png';
 
 /* ── QUIZ DATA ─────────────────────────────────────── */
 const QUIZ = [
@@ -274,45 +275,22 @@ function Home({ setTab, barriers = [] }) {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
           className="hero-right hero-graphic-container"
         >
-          <div className="hero-float">78% feel better after first step ✓</div>
-          <div className="hero-graphic-wrapper" style={{ position: 'relative', width: '340px', height: '340px', borderRadius: '50%', background: 'var(--brand-lt)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 0 40px rgba(139,94,60,0.05)' }}>
-            
-            {/* Beeping Heart */}
-            <motion.div
-              animate={{ scale: [1, 1.15, 1, 1.15, 1] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", repeatDelay: 1 }}
-              style={{ position: 'absolute', zIndex: 2, filter: 'drop-shadow(0 10px 20px rgba(139,94,60,0.3))' }}
-            >
-              <svg width="100" height="100" viewBox="0 0 24 24" fill="var(--brand)">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-            </motion.div>
-            
-            {/* Moving Stethoscope */}
-            <motion.div
-              animate={{ rotate: [0, -8, 4, 0], y: [0, -10, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-              style={{ position: 'absolute', zIndex: 1, top: '15%', right: '15%', filter: 'drop-shadow(0 5px 15px rgba(0,0,0,0.15))' }}
-            >
-              <svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="var(--brand-dk)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
-                <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
-                <circle cx="20" cy="10" r="2"/>
-              </svg>
-            </motion.div>
-
-            {/* Background glowing rings */}
-            <motion.div 
-              animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.2, 0.5] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              style={{ position: 'absolute', width: '80%', height: '80%', borderRadius: '50%', border: '1px dashed var(--brand)', opacity: 0.3, zIndex: 0 }}
-            />
-            <motion.div 
-              animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.1, 0.3] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 0.5 }}
-              style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '50%', border: '1px dashed var(--brand)', opacity: 0.2, zIndex: 0 }}
-            />
-          </div>
+          <motion.div 
+            animate={{ scale: [1, 1.05, 1, 1.05, 1] }}
+            transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut", repeatDelay: 1 }}
+            className="hero-graphic-wrapper" 
+            style={{ 
+              position: 'relative', 
+              width: '360px', 
+              height: '360px', 
+              borderRadius: '50%', 
+              overflow: 'hidden', 
+              boxShadow: '0 20px 40px rgba(139,94,60,0.2)',
+              border: '6px solid var(--surface)'
+            }}
+          >
+            <img src={heroHeartImg} alt="Realistic Heart and Stethoscope" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </motion.div>
         </motion.div>
       </div>
 
