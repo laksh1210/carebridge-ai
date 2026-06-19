@@ -70,9 +70,9 @@ function detectCrisis(text) {
 const CRISIS_RESPONSE = {
   primaryBarrier: "Crisis detected",
   hesitationScore: 100,
-  summary: "What you're feeling right now is real, and you don't have to face it alone. Please reach out to a crisis line immediately — trained counsellors are available 24/7 and will listen without judgment.",
+  summary: "What you're feeling right now is real, and you don't have to face it alone. Please reach out to a crisis line immediately: trained counsellors are available 24/7 and will listen without judgment.",
   encouragement: "You matter. Asking for help is the bravest thing you can do right now.",
-  nextStep: "Call iCall now: 9152987821 · Vandrevala Foundation: 1860-2662-345 · NIMHANS: 080-46110007",
+  nextStep: "Call iCall now: 9152987821 · Vandrevala Foundation: 1860 2662 345 · NIMHANS: 080 46110007",
   isCrisis: true,
 };
 
@@ -149,12 +149,12 @@ app.post("/chat", rateLimit, async (req, res) => {
     // Crisis check
     if (detectCrisis(message)) {
       return res.json({
-        reply: "I'm really glad you reached out. What you're feeling sounds very serious — please call iCall right now: **9152987821**. They're available 24/7 and will listen without judgment. You don't have to go through this alone. 💙",
+        reply: "I'm really glad you reached out. What you're feeling sounds very serious: please call iCall right now: **9152987821**. They're available 24/7 and will listen without judgment. You don't have to go through this alone. 💙",
         isCrisis: true,
       });
     }
 
-    const systemPrompt = `You are CareBridge, a warm, empathetic AI assistant helping people in India overcome emotional and psychological barriers to seeking healthcare. Speak naturally — like a trusted, knowledgeable friend.
+    const systemPrompt = `You are CareBridge, a warm, empathetic AI assistant helping people in India overcome emotional and psychological barriers to seeking healthcare. Speak naturally, like a trusted, knowledgeable friend.
 
 Goals:
 1. Identify the user's real emotional barrier (fear, stigma, cost, time, masculinity norms, denial)
@@ -163,19 +163,19 @@ Goals:
 4. Give one concrete, doable next step
 
 Key facts:
-- PHCs are free in India
-- Ayushman Bharat / PMJAY covers ₹5 lakh/year hospitalisation
-- eSanjeevani is free government telemedicine
-- Jan Aushadhi medicines are 50-80% cheaper
-- Basic GP consult: ₹200-400 in most Indian cities
-- Mental health crisis lines: iCall 9152987821, Vandrevala 1860-2662-345
+* PHCs are free in India
+* Ayushman Bharat / PMJAY covers ₹5 lakh/year hospitalisation
+* eSanjeevani is free government telemedicine
+* Jan Aushadhi medicines are 50 to 80% cheaper
+* Basic GP consult: ₹200 to ₹400 in most Indian cities
+* Mental health crisis lines: iCall 9152987821, Vandrevala 1860 2662 345
 
 Rules:
-- 3-4 sentences max unless explaining something specific
-- Never give a medical diagnosis
-- Ask one follow-up question at the end
-- Empathy first, information second
-- Match the user's language — if they write Hindi, respond in Hindi`;
+* 3 to 4 sentences max unless explaining something specific
+* Never give a medical diagnosis
+* Ask one follow-up question at the end
+* Empathy first, information second
+* Match the user's language: if they write Hindi, respond in Hindi`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",

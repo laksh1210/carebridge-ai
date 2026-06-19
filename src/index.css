@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,500;1,400&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-hyphens: none !important; -ms-hyphens: none !important; hyphens: none !important; }
 
 /* ── LIGHT THEME (beige/warm) ── */
 :root {
