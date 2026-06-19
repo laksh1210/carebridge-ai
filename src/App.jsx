@@ -410,10 +410,11 @@ function Chat() {
     setLoading(true);
     const newHist = [...history, { role: "user", content: msg }];
     try {
-      const res = await fetch("https://carebridge-ai-vhp0.onrender.com/chat", {
+      const API_URL = import.meta.env.DEV ? "http://localhost:3001" : "https://carebridge-ai-vhp0.onrender.com";
+      const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg }),
+        body: JSON.stringify({ message: msg, history: newHist }),
       });
       const data = await res.json();
 

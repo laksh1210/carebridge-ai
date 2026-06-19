@@ -140,7 +140,7 @@ ${message}
 /* ── /chat ENDPOINT ────────────────────────────────── */
 app.post("/chat", rateLimit, async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
 
     if (!message || typeof message !== "string" || message.trim().length === 0) {
       return res.status(400).json({ error: "Message is required." });
@@ -177,9 +177,22 @@ Rules:
 * Empathy first, information second
 * Match the user's language: if they write Hindi, respond in Hindi`;
 
+    let contents;
+    if (history && Array.isArray(history) && history.length > 0) {
+      contents = history.map(h => ({
+        role: h.role === "assistant" ? "model" : "user",
+        parts: [{ text: h.content }]
+      }));
+    } else {
+      contents = [{ role: "user", parts: [{ text: message }] }];
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `${systemPrompt}\n\nUser: ${message}`,
+      contents: contents,
+      config: {
+        systemInstruction: systemPrompt
+      }
     });
 
     res.json({ reply: response.text });
