@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+// useEffect already imported above
 import "./index.css";
 
 /* ── QUIZ DATA ─────────────────────────────────────── */
@@ -159,7 +160,7 @@ const BARRIERS_INFO = [
 ];
 
 /* ── NAV ───────────────────────────────────────────── */
-function Nav({ tab, setTab }) {
+function Nav({ tab, setTab, dark, setDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const tabs = ["home", "quiz", "stories", "costs", "chat"];
   return (
@@ -175,7 +176,12 @@ function Nav({ tab, setTab }) {
           </button>
         ))}
       </div>
-      <button className="nav-mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+      <div className="nav-right">
+        <button className="theme-toggle" onClick={() => setDark(!dark)}>
+          {dark ? "☀️" : "🌙"} <span>{dark ? "Light" : "Dark"}</span>
+        </button>
+        <button className="nav-mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+      </div>
       {menuOpen && (
         <div className="nav-mobile-menu">
           {tabs.map((t) => (
@@ -211,7 +217,7 @@ function Home({ setTab }) {
             { label: "Cost uncertainty", sub: "Solved by free govt. services", w: 41, color: "#7F77DD" },
             { label: "Users who took action", sub: "Within 72 hours of using CareBridge", w: 78, color: "#1D9E75", teal: true },
           ].map((b) => (
-            <div key={b.label} className={`hero-card ${b.teal ? "hero-card-teal" : ""}`}>
+            <div key={b.label} className={`hero-card ${b.teal ? "hero-card-warm" : ""}`}>
               <div className="hc-label">{b.label}</div>
               <div className="hc-val">{b.sub}</div>
               <div className="hc-bar"><div className="hc-fill" style={{ width: `${b.w}%`, background: b.color }} /></div>
@@ -512,9 +518,15 @@ function Chat() {
 /* ── APP ───────────────────────────────────────────── */
 export default function App() {
   const [tab, setTab] = useState("home");
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  }, [dark]);
+
   return (
     <>
-      <Nav tab={tab} setTab={setTab} />
+      <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} />
       {tab === "home" && <Home setTab={setTab} />}
       {tab === "quiz" && <Quiz setTab={setTab} />}
       {tab === "stories" && <Stories />}
