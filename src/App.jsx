@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-// useEffect already imported above
-import "./index.css";
+import React, { useState, useEffect, useRef } from 'react';
+import './index.css';
+import logoImg from './logo.jpg';
 
 /* ── QUIZ DATA ─────────────────────────────────────── */
 const QUIZ = [
@@ -117,7 +117,7 @@ function Nav({ tab, setTab, dark, setDark }) {
   return (
     <nav className="nav">
       <button className="nav-logo" onClick={() => setTab("home")}>
-        <img src="/logo.jpg" alt="CareBridge AI Logo" className="nav-logo-img" />
+        <img src={logoImg} alt="CareBridge AI Logo" className="nav-logo-img" />
         CareBridge AI
       </button>
       <div className="nav-tabs">

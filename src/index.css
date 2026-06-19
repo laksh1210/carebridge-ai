@@ -80,9 +80,15 @@ a { text-decoration: none; }
   transition: background 0.3s, border-color 0.3s;
 }
 .nav-logo {
-  display: flex; align-items: center; gap: 9px;
-  font-family: 'Lora', serif; font-size: 1.15rem; font-weight: 500;
-  color: var(--brand); background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Lora', serif; font-size: 1.15rem; font-weight: 600;
+  color: var(--brand-dk); background: var(--surface2); border: 1px solid var(--border);
+  padding: 0.35rem 1rem 0.35rem 0.35rem; border-radius: 50px;
+  cursor: pointer; transition: all 0.2s ease;
+}
+.nav-logo:hover {
+  background: var(--brand-lt); transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139,94,60,.15);
 }
 .nav-logo-img {
   width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
