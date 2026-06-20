@@ -114,8 +114,8 @@ export default function About({ setTab }) {
             <p>Full Stack Developer</p>
           </motion.div>
           <motion.div className="team-card" variants={fadeUpVariant}>
-            <img src={karanImg} alt="Karan Bhagwaan" className="team-avatar" />
-            <h3>Karan Bhagwaan</h3>
+            <img src={karanImg} alt="Karan Singh" className="team-avatar" />
+            <h3>Karan Singh</h3>
             <p>Developer & System Integration</p>
           </motion.div>
           <motion.div className="team-card" variants={fadeUpVariant}>
