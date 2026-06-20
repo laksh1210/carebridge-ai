@@ -147,11 +147,6 @@ export default function Auth({ setAuthStatus, setTab }) {
                 <h2>Patient Login</h2>
                 <p>Welcome back! Sign in to book a consultation.</p>
               </div>
-              <button className="google-btn" onClick={handleGoogleMock}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" width="20" />
-                Continue with Google
-              </button>
-              <div className="divider"><span>or sign in with username</span></div>
               <form onSubmit={handleLogin} className="auth-form">
                 <div className="form-group">
                   <label>Username</label>
@@ -179,11 +174,6 @@ export default function Auth({ setAuthStatus, setTab }) {
                 <h2>Create an Account</h2>
                 <p>Join CareBridge to schedule your first consultation.</p>
               </div>
-              <button className="google-btn" onClick={handleGoogleMock}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" width="20" />
-                Sign Up with Google
-              </button>
-              <div className="divider"><span>or register manually</span></div>
               <form onSubmit={handleSignup} className="auth-form two-cols">
                 <div className="form-group">
                   <label>Full Name</label>
