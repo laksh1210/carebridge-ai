@@ -110,17 +110,26 @@ export default function About({ setTab }) {
         <div className="team-grid">
           <motion.div className="team-card" variants={fadeUpVariant}>
             <img src={lakshyaImg} alt="Lakshya Falor" className="team-avatar" />
-            <h3>Lakshya Falor</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              <h3>Lakshya Falor</h3>
+              <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>24BAI10117</span>
+            </div>
             <p>Full Stack Developer</p>
           </motion.div>
           <motion.div className="team-card" variants={fadeUpVariant}>
             <img src={karanImg} alt="Karan Singh" className="team-avatar" />
-            <h3>Karan Singh</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              <h3>Karan Singh</h3>
+              <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>24BAI10685</span>
+            </div>
             <p>Developer & System Integration</p>
           </motion.div>
           <motion.div className="team-card" variants={fadeUpVariant}>
             <img src={pragyanImg} alt="Pragyan Shrivastav" className="team-avatar" />
-            <h3>Pragyan Shrivastav</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              <h3>Pragyan Shrivastav</h3>
+              <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>24BAI10326</span>
+            </div>
             <p>Developer & Research Contributor</p>
           </motion.div>
         </div>
