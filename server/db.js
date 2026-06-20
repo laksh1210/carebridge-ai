@@ -5,10 +5,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Create or connect to the database
 const db = new Database(path.join(__dirname, 'carebridge.db'));
 
-// Initialize schema
 db.exec(`
   CREATE TABLE IF NOT EXISTS content (
     key TEXT PRIMARY KEY,
@@ -39,6 +37,7 @@ db.exec(`
     date TEXT NOT NULL,
     time TEXT NOT NULL,
     notes TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 

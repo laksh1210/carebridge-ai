@@ -13,13 +13,9 @@ app.use(express.json());
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-/* ── PRIORITY 1: RATE LIMITING ─────────────────────────
-   In-memory store: 5 requests per IP per 30 minutes.
-   No extra packages needed.
-─────────────────────────────────────────────────────── */
 const rateLimitStore = new Map();
 const RATE_LIMIT = 5;
-const WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+const WINDOW_MS = 30 * 60 * 1000; 
 
 function rateLimit(req, res, next) {
   const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "unknown";
@@ -27,7 +23,7 @@ function rateLimit(req, res, next) {
   const entry = rateLimitStore.get(ip);
 
   if (!entry || now - entry.windowStart > WINDOW_MS) {
-    // New window
+    
     rateLimitStore.set(ip, { count: 1, windowStart: now });
     return next();
   }
@@ -45,7 +41,6 @@ function rateLimit(req, res, next) {
   next();
 }
 
-// Clean up old entries every 30 mins to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateLimitStore.entries()) {
@@ -53,10 +48,6 @@ setInterval(() => {
   }
 }, WINDOW_MS);
 
-/* ── PRIORITY 2: CRISIS DETECTION ─────────────────────
-   Scans message for crisis keywords before hitting Gemini.
-   Returns immediate resources without AI call.
-─────────────────────────────────────────────────────── */
 const CRISIS_KEYWORDS = [
   "suicide", "suicidal", "kill myself", "end my life", "want to die",
   "don't want to live", "no reason to live", "self harm", "self-harm",
@@ -78,7 +69,6 @@ const CRISIS_RESPONSE = {
   isCrisis: true,
 };
 
-/* ── PRIORITY 3: CONTENT API ───────────────────────── */
 app.get("/api/content", (req, res) => {
   try {
     const rows = db.prepare("SELECT key, value FROM content").all();
@@ -93,7 +83,6 @@ app.get("/api/content", (req, res) => {
   }
 });
 
-/* ── PRIORITY 4: QUIZ RESULT API ───────────────────── */
 app.post("/api/quiz", (req, res) => {
   try {
     const { primaryBarrier } = req.body;
@@ -109,7 +98,6 @@ app.post("/api/quiz", (req, res) => {
   }
 });
 
-/* ── PRIORITY 5: FEEDBACK API ──────────────────────── */
 app.post("/api/feedback", (req, res) => {
   try {
     const { source, rating, comment } = req.body;
@@ -125,7 +113,6 @@ app.post("/api/feedback", (req, res) => {
   }
 });
 
-/* ── /analyze ENDPOINT ─────────────────────────────── */
 app.post("/analyze", rateLimit, async (req, res) => {
   try {
     const { message } = req.body;
@@ -134,7 +121,6 @@ app.post("/analyze", rateLimit, async (req, res) => {
       return res.status(400).json({ error: "Message is required." });
     }
 
-    // Crisis check — skip Gemini entirely
     if (detectCrisis(message)) {
       console.log("[CRISIS] Detected crisis keywords — returning resources immediately.");
       return res.json({ result: JSON.stringify(CRISIS_RESPONSE) });
@@ -186,7 +172,6 @@ ${message}
   }
 });
 
-/* ── /chat ENDPOINT ────────────────────────────────── */
 app.post("/chat", rateLimit, async (req, res) => {
   try {
     const { message, history } = req.body;
@@ -195,7 +180,6 @@ app.post("/chat", rateLimit, async (req, res) => {
       return res.status(400).json({ error: "Message is required." });
     }
 
-    // Crisis check
     if (detectCrisis(message)) {
       return res.json({
         reply: "I'm really glad you reached out. What you're feeling sounds very serious: please call iCall right now: **9152987821**. They're available 24/7 and will listen without judgment. You don't have to go through this alone. 💙",
@@ -203,7 +187,7 @@ app.post("/chat", rateLimit, async (req, res) => {
       });
     }
 
-    const systemPrompt = `You are CareBridge, a warm, empathetic AI assistant helping people in India overcome emotional and psychological barriers to seeking healthcare. Speak naturally, like a trusted, knowledgeable friend.
+    let systemPrompt = `You are CareBridge, a warm, empathetic AI assistant helping people in India overcome emotional and psychological barriers to seeking healthcare. Speak naturally, like a trusted, knowledgeable friend.
 
 Goals:
 1. Identify the user's real emotional barrier (fear, stigma, cost, time, masculinity norms, denial)
@@ -225,6 +209,10 @@ Rules:
 * Ask one follow-up question at the end
 * Empathy first, information second
 * Match the user's language: if they write Hindi, respond in Hindi`;
+
+    if (req.body.quizBarrier) {
+      systemPrompt += `\n\nCRITICAL CONTEXT: The user recently took an assessment and their primary barrier was identified as: ${req.body.quizBarrier}. Keep this context in mind and gently guide them to overcome this specific barrier.`;
+    }
 
     let contents;
     if (history && Array.isArray(history) && history.length > 0) {
@@ -250,7 +238,7 @@ Rules:
     res.status(500).json({ reply: "I'm having trouble connecting right now. Please try again in a moment." });
   }
 });
-/* ── AUTH API ──────────────────────────────────────── */
+
 app.post("/api/auth/register", (req, res) => {
   try {
     const { username, email, phone, password, name } = req.body;
@@ -258,19 +246,16 @@ app.post("/api/auth/register", (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Phone validation (10 digits)
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
       return res.status(400).json({ error: "Phone number must be exactly 10 digits" });
     }
 
-    // Check if phone already exists
     const existingPhone = db.prepare("SELECT id FROM users WHERE phone = ?").get(phone);
     if (existingPhone) {
       return res.status(400).json({ error: "This phone number is already registered to another account." });
     }
 
-    // Check if username already exists
     const existingUser = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
     if (existingUser) {
       const suggestion = username + Math.floor(100 + Math.random() * 900);
@@ -318,7 +303,6 @@ app.post("/api/auth/login", (req, res) => {
   }
 });
 
-/* ── APPOINTMENTS API ────────────────────────────── */
 app.post("/api/appointments", rateLimit, (req, res) => {
   try {
     const { name, email, phone, consultation_type, date, time, notes } = req.body;
@@ -330,8 +314,8 @@ app.post("/api/appointments", rateLimit, (req, res) => {
     const booking_id = 'CB-' + Math.floor(10000 + Math.random() * 90000);
 
     const stmt = db.prepare(`
-      INSERT INTO appointments (booking_id, name, email, phone, consultation_type, date, time, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO appointments (booking_id, name, email, phone, consultation_type, date, time, notes, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     `);
     
     stmt.run(booking_id, name, email, phone, consultation_type, date, time, notes || "");
@@ -353,6 +337,5 @@ app.get("/api/appointments", (req, res) => {
   }
 });
 
-/* ── SERVER ────────────────────────────────────────── */
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));

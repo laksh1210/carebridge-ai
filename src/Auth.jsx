@@ -8,7 +8,7 @@ const fadeVariant = {
 };
 
 export default function Auth({ setAuthStatus, setTab }) {
-  const [mode, setMode] = useState("select-role"); // "select-role" | "doctor-login" | "patient-login" | "patient-signup"
+  const [mode, setMode] = useState("select-role"); 
   
   const [formData, setFormData] = useState({
     username: '', password: '', email: '', phone: '', name: ''
@@ -93,7 +93,7 @@ export default function Auth({ setAuthStatus, setTab }) {
   };
 
   const handleGoogleMock = () => {
-    // Just a mock to simulate Google Login for aesthetics
+    
     setAuthStatus({ 
       loggedIn: true, 
       user: { id: 999, username: 'google_user', name: 'Google User', email: 'user@gmail.com', role: 'patient' }, 

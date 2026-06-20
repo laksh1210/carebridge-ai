@@ -6,7 +6,7 @@ import heroHeartImg from './assets/hero_heart_3d.png';
 import Booking from './Booking.jsx';
 import Admin from './Admin.jsx';
 import Auth from './Auth.jsx';
-/* ── QUIZ DATA ─────────────────────────────────────── */
+
 const QUIZ = [
   {
     q: "When you think about going to a doctor, what's the first feeling that comes up?",
@@ -122,8 +122,6 @@ const RESULTS = {
   },
 };
 
-/* Content fetched from API */
-/* ── NAV ───────────────────────────────────────────── */
 function Nav({ tab, setTab, dark, setDark, authStatus, setAuthStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrollY } = useScroll();
@@ -224,7 +222,6 @@ const fadeUpVariant = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
 };
 
-/* ── COUNT UP STAT ─────────────────────────────────── */
 function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = false, duration = 2000, heading, colorClass = "" }) {
   const [count, setCount] = useState(fadeOnly ? endValue : 0);
   const [hasStarted, setHasStarted] = useState(false);
@@ -261,7 +258,6 @@ function CountUpStat({ endValue, label, suffix = "", prefix = "", fadeOnly = fal
   );
 }
 
-/* ── HOME ──────────────────────────────────────────── */
 function Home({ setTab, barriers = [] }) {
   return (
     <motion.div 
@@ -281,9 +277,9 @@ function Home({ setTab, barriers = [] }) {
           <motion.h1 variants={fadeUpVariant}>You deserve care.<br /><em>Let's make it easy</em> to ask for it.</motion.h1>
           <motion.p variants={fadeUpVariant} className="hero-sub">CareBridge understands why people hesitate (fear, cost, stigma) and meets you where you are. No judgment. Real next steps.</motion.p>
           <motion.div variants={fadeUpVariant} className="hero-actions">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("quiz")}>Find your barrier →</motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("chat")}>Talk it through</motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("plans")}>View Care Plans</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("quiz")}>Take Barrier Assessment →</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("chat")}>Talk to AI</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("booking")}>Book Consultation</motion.button>
           </motion.div>
         </motion.div>
         <motion.div 
@@ -366,6 +362,54 @@ function Home({ setTab, barriers = [] }) {
         </motion.div>
       </motion.div>
 
+      <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="section how-it-works" style={{ background: "var(--surface)", margin: "4rem 0", padding: "4rem 2rem", borderRadius: "24px" }}>
+        <motion.div variants={fadeUpVariant} className="section-label">Seamless Journey</motion.div>
+        <motion.h2 variants={fadeUpVariant} className="section-title">How CareBridge Works</motion.h2>
+        <motion.div variants={staggerContainer} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginTop: '3rem' }}>
+          {[
+            { num: "01", title: "Take Assessment", desc: "Identify your primary healthcare barrier in 90 seconds." },
+            { num: "02", title: "Talk to AI", desc: "Get personalized, anonymous guidance without judgment." },
+            { num: "03", title: "Review Plans", desc: "Explore structured care plans tailored to your needs." },
+            { num: "04", title: "Book Consultation", desc: "Easily schedule an appointment with the right specialist." }
+          ].map((s) => (
+            <motion.div key={s.num} variants={fadeUpVariant} className="card" style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg)' }}>
+              <div style={{ fontSize: '2.5rem', color: 'var(--brand)', fontWeight: 'bold', marginBottom: '1rem', opacity: 0.5 }}>{s.num}</div>
+              <h3 style={{ marginBottom: '0.5rem', fontSize: '1.2rem' }}>{s.title}</h3>
+              <p style={{ color: 'var(--text-soft)', fontSize: '0.95rem' }}>{s.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
+
+      <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="section">
+        <motion.div variants={fadeUpVariant} className="section-label">Tailored Support</motion.div>
+        <motion.h2 variants={fadeUpVariant} className="section-title">Explore Care Plans</motion.h2>
+        <motion.p variants={fadeUpVariant} className="section-desc">We've designed specialized pathways to help you navigate specific health goals.</motion.p>
+        <motion.div variants={fadeUpVariant} style={{ textAlign: "center", marginTop: "2rem" }}>
+          <button className="btn btn-outline" onClick={() => setTab("plans")}>View All Care Plans</button>
+        </motion.div>
+      </motion.div>
+
+      <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="section" style={{ background: "var(--brand-lt)", borderRadius: "24px", padding: "4rem 2rem", margin: "4rem 0" }}>
+        <motion.div variants={fadeUpVariant} className="section-label">Real Stories</motion.div>
+        <motion.h2 variants={fadeUpVariant} className="section-title">You are not alone</motion.h2>
+        <motion.p variants={fadeUpVariant} className="section-desc" style={{ maxWidth: "600px", margin: "0 auto 2rem auto" }}>Read how others navigated their fears and found the care they needed.</motion.p>
+        <motion.div variants={fadeUpVariant} style={{ textAlign: "center" }}>
+          <button className="btn btn-primary" onClick={() => setTab("stories")}>Read Patient Stories</button>
+        </motion.div>
+      </motion.div>
+
+      <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.1 }} className="section final-cta" style={{ textAlign: 'center', margin: '6rem auto', maxWidth: '800px' }}>
+        <motion.h2 variants={fadeUpVariant} style={{ marginBottom: '1.5rem', fontSize: '2.5rem' }}>Ready to take the first step?</motion.h2>
+        <motion.p variants={fadeUpVariant} style={{ color: 'var(--text-soft)', marginBottom: '2.5rem', fontSize: '1.2rem' }}>
+          Join thousands of people who have overcome their hesitation and found the care they deserve.
+        </motion.p>
+        <motion.div variants={fadeUpVariant} style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button className="btn btn-primary" onClick={() => setTab("booking")}>Book Consultation Now</button>
+          <button className="btn btn-outline" onClick={() => setTab("chat")}>Talk to CareBridge AI</button>
+        </motion.div>
+      </motion.div>
+
       <footer className="site-footer">
         <div className="footer-inner">
           <div>
@@ -385,7 +429,6 @@ function Home({ setTab, barriers = [] }) {
   );
 }
 
-/* ── QUIZ ──────────────────────────────────────────── */
 function Quiz({ setTab, quizResult, setQuizResult }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -502,12 +545,11 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
             </div>
           </div>
           
-          <div className="result-actions-stack">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary btn-large" onClick={() => setTab("chat")}>Talk to CareBridge AI</motion.button>
-            {quizResult === RESULTS.cost && (
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("plans")}>View Care Plans →</motion.button>
-            )}
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={reset}>Retake quiz</motion.button>
+          <div className="result-actions-stack" style={{ gap: '0.8rem' }}>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary btn-large" onClick={() => setTab("stories")}>✓ Read similar stories</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary btn-large" onClick={() => setTab("chat")}>✓ Chat with CareBridge AI</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary btn-large" onClick={() => setTab("booking")}>✓ Book a Consultation</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" style={{ marginTop: '0.5rem' }} onClick={reset}>Retake quiz</motion.button>
           </div>
         </motion.div>
       )}
@@ -516,12 +558,7 @@ function Quiz({ setTab, quizResult, setQuizResult }) {
   );
 }
 
-/* ── STORIES ───────────────────────────────────────── */
 function Stories({ stories = [], setTab, quizResult }) {
-  const [filter, setFilter] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [expandedStory, setExpandedStory] = useState(null);
-
   const categories = ["All", "Cost", "Stigma", "Time", "Fear", "Distance", "Denial"];
 
   const getRecommendedCategory = () => {
@@ -533,9 +570,12 @@ function Stories({ stories = [], setTab, quizResult }) {
 
   const recCat = getRecommendedCategory();
 
+  const [filter, setFilter] = useState(recCat || "All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedStory, setExpandedStory] = useState(null);
+
   let displayStories = [...stories];
 
-  // Apply Search
   if (searchQuery) {
     displayStories = displayStories.filter(s => 
       s.quote.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -544,12 +584,10 @@ function Stories({ stories = [], setTab, quizResult }) {
     );
   }
 
-  // Apply Filter
   if (filter !== "All") {
     displayStories = displayStories.filter(s => s.category === filter);
   }
 
-  // Prioritize Recommended
   if (recCat && filter === "All" && !searchQuery) {
     displayStories.sort((a, b) => {
       if (a.category === recCat && b.category !== recCat) return -1;
@@ -557,8 +595,6 @@ function Stories({ stories = [], setTab, quizResult }) {
       return 0;
     });
   }
-
-
 
   return (
     <motion.div 
@@ -573,7 +609,7 @@ function Stories({ stories = [], setTab, quizResult }) {
         <p className="section-desc">Names changed for privacy, but the journeys are real.</p>
       </motion.div>
 
-      {/* Search & Filters */}
+      {}
       <div className="stories-controls">
         <div className="stories-search-wrapper">
           <span className="search-icon"></span>
@@ -646,7 +682,7 @@ function Stories({ stories = [], setTab, quizResult }) {
         )}
       </motion.div>
 
-      {/* CTA SECTION */}
+      {}
       <motion.div 
         variants={fadeUpVariant}
         initial="hidden"
@@ -665,7 +701,6 @@ function Stories({ stories = [], setTab, quizResult }) {
   );
 }
 
-/* ── CARE PLANS ────────────────────────────────────── */
 function CarePlans({ setTab }) {
   const steps = [
     { icon: "👤", title: "Create Your Account", desc: "Sign up securely and set up your personal health profile in minutes." },
@@ -755,7 +790,6 @@ function CarePlans({ setTab }) {
   );
 }
 
-/* ── CHAT ──────────────────────────────────────────── */
 function Chat() {
   const [messages, setMessages] = useState([
     { role: "bot", text: "Hi there 👋 I'm CareBridge. Whatever's making you hesitate about seeing a doctor, I'm here to listen, not lecture. What's been on your mind?" },
@@ -790,14 +824,18 @@ function Chat() {
     const newHist = [...history, { role: "user", content: msg }];
     try {
       const API_URL = import.meta.env.DEV ? `http://${window.location.hostname}:3001` : "https://carebridge-ai-vhp0.onrender.com";
+      const payload = { 
+        message: msg, 
+        history: newHist,
+        quizBarrier: quizResult ? quizResult.label : null
+      };
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, history: newHist }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
 
-      // Rate limited
       if (res.status === 429) {
         setMessages([...newMsgs, { role: "bot", text: `⏳ ${data.message}` }]);
         setLoading(false);
@@ -892,6 +930,11 @@ function Chat() {
           />
           <button className="chat-send" onClick={() => sendMsg()} disabled={!input.trim() || loading}>➤</button>
         </div>
+        <div className="chat-proactive-actions" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0.5rem 1rem', background: 'var(--surface)', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px' }}>
+          <button className="quick-chip" onClick={() => setTab("quiz")}>Take Barrier Quiz</button>
+          <button className="quick-chip" onClick={() => setTab("stories")}>Read Similar Stories</button>
+          <button className="quick-chip" onClick={() => setTab("booking")}>Book a Consultation</button>
+        </div>
       </div>
 
       <div className="crisis-banner" style={{ marginTop: "1rem" }}>
@@ -901,7 +944,6 @@ function Chat() {
   );
 }
 
-/* ── APP ───────────────────────────────────────────── */
 export default function App() {
   const [tab, setTab] = useState("home");
   const [authStatus, setAuthStatus] = useState({ loggedIn: false, role: null, user: null });
@@ -938,9 +980,9 @@ export default function App() {
         {tab === "quiz" && <Quiz key="quiz" setTab={setTab} quizResult={quizResult} setQuizResult={setQuizResult} />}
         {tab === "stories" && <Stories key="stories" setTab={setTab} stories={content.stories} quizResult={quizResult} />}
         {tab === "plans" && <CarePlans key="plans" setTab={setTab} />}
-        {tab === "chat" && <Chat key="chat" />}
+        {tab === "chat" && <Chat key="chat" setTab={setTab} quizResult={quizResult} />}
         {tab === "auth" && <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />}
-        {tab === "booking" && (authStatus.loggedIn ? <Booking key="booking" setTab={setTab} /> : <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />)}
+        {tab === "booking" && (authStatus.loggedIn ? <Booking key="booking" setTab={setTab} quizResult={quizResult} authStatus={authStatus} /> : <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />)}
         {tab === "admin" && (authStatus.role === "doctor" ? <Admin key="admin" /> : <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />)}
       </AnimatePresence>
     </>

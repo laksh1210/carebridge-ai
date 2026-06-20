@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const fadeVariant = {
@@ -80,17 +80,30 @@ function Calendar({ selectedDate, onSelect }) {
   );
 }
 
-export default function Booking({ setTab }) {
+export default function Booking({ setTab, quizResult, authStatus }) {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    name: '', email: '', phone: '',
-    consultation_type: '', date: null, time: '', notes: ''
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [bookingId, setBookingId] = useState(null);
 
+  const getInitialType = () => {
+    if (!quizResult) return '';
+    if (['stigma', 'masculinity'].includes(quizResult.id)) return 'Mental Health';
+    return 'General Physician';
+  };
+
+  const [formData, setFormData] = useState({
+    name: authStatus?.user?.name || '',
+    email: authStatus?.user?.email || '',
+    phone: authStatus?.user?.phone || '',
+    consultation_type: getInitialType(),
+    date: null,
+    time: '',
+    notes: ''
+  });
+
   const handleNext = () => {
+    setError(null);
     if (step === 1) {
       if (!formData.name || !formData.email || !formData.phone) {
         setError("Please fill in all required fields.");
@@ -101,20 +114,25 @@ export default function Booking({ setTab }) {
         return;
       }
     } else if (step === 2) {
-      if (!formData.consultation_type || !formData.date || !formData.time) {
-        setError("Please select consultation type, date, and time.");
+      if (!formData.consultation_type) {
+        setError("Please select a consultation type.");
+        return;
+      }
+    } else if (step === 3) {
+      if (!formData.date) {
+        setError("Please select a date.");
+        return;
+      }
+    } else if (step === 4) {
+      if (!formData.time) {
+        setError("Please select a time.");
         return;
       }
     }
-    setError(null);
     setStep(s => s + 1);
   };
 
   const submitBooking = async () => {
-    if (!formData.consultation_type || !formData.date || !formData.time) {
-      setError("Please select consultation type, date, and time.");
-      return;
-    }
     setLoading(true);
     setError(null);
     try {
@@ -132,7 +150,7 @@ export default function Booking({ setTab }) {
       const data = await res.json();
       if (res.ok) {
         setBookingId(data.booking_id);
-        setStep(3);
+        setStep(7);
       } else {
         setError(data.error || "Failed to book appointment.");
       }
@@ -157,7 +175,7 @@ export default function Booking({ setTab }) {
           {step === 1 && (
             <motion.div key="step1" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card">
               <div className="booking-header">
-                <h2>Your Details</h2>
+                <h2>Step 1: Your Details</h2>
                 <p>Let's start with some basic information.</p>
               </div>
               
@@ -187,18 +205,17 @@ export default function Booking({ setTab }) {
           {step === 2 && (
             <motion.div key="step2" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card large">
               <div className="booking-header">
-                <h2>Consultation Details</h2>
-                <p>Choose your preferred service, date, and time.</p>
+                <h2>Step 2: Consultation Type</h2>
+                <p>Choose your preferred service.</p>
               </div>
               
               <div className="form-section">
-                <label>Consultation Type *</label>
                 <div className="type-grid">
                   {TYPES.map(t => (
                     <button 
                       key={t} 
                       className={`type-card ${formData.consultation_type === t ? 'selected' : ''}`}
-                      onClick={() => setFormData({...formData, consultation_type: t})}
+                      onClick={() => { setFormData({...formData, consultation_type: t}); setError(null); }}
                     >
                       {t}
                     </button>
@@ -206,42 +223,109 @@ export default function Booking({ setTab }) {
                 </div>
               </div>
 
-              <div className="datetime-split">
-                <div className="form-section flex-1">
-                  <label>Select Date *</label>
-                  <Calendar selectedDate={formData.date} onSelect={d => setFormData({...formData, date: d})} />
-                </div>
-                
-                <div className="form-section flex-1">
-                  <label>Select Time *</label>
-                  <div className="time-grid">
-                    {TIMES.map(t => (
-                      <button 
-                        key={t}
-                        className={`time-pill ${formData.time === t ? 'selected' : ''}`}
-                        onClick={() => setFormData({...formData, time: t})}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {error && <div className="error-message">{error}</div>}
 
-              <div className="form-section mt-4">
-                <label>Notes / Symptoms (Optional)</label>
-                <textarea 
-                  rows="3" 
-                  value={formData.notes} 
-                  onChange={e => setFormData({...formData, notes: e.target.value})}
-                  placeholder="Briefly describe why you are seeking a consultation..."
-                />
+              <div className="booking-actions split mt-4">
+                <button className="btn btn-outline" onClick={() => { setStep(s => s - 1); setError(null); }}>← Back</button>
+                <button className="btn btn-primary" onClick={handleNext}>Continue →</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div key="step3" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card">
+              <div className="booking-header">
+                <h2>Step 3: Select Date</h2>
+                <p>When would you like to have your consultation?</p>
+              </div>
+              
+              <div className="form-section">
+                <Calendar selectedDate={formData.date} onSelect={d => { setFormData({...formData, date: d}); setError(null); }} />
               </div>
 
               {error && <div className="error-message">{error}</div>}
 
               <div className="booking-actions split mt-4">
-                <button className="btn btn-outline" onClick={() => { setStep(1); setError(null); }}>← Back</button>
+                <button className="btn btn-outline" onClick={() => { setStep(s => s - 1); setError(null); }}>← Back</button>
+                <button className="btn btn-primary" onClick={handleNext}>Continue →</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div key="step4" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card">
+              <div className="booking-header">
+                <h2>Step 4: Select Time</h2>
+                <p>Choose an available time slot for {formData.date?.toDateString()}.</p>
+              </div>
+              
+              <div className="form-section">
+                <div className="time-grid">
+                  {TIMES.map(t => (
+                    <button 
+                      key={t}
+                      className={`time-pill ${formData.time === t ? 'selected' : ''}`}
+                      onClick={() => { setFormData({...formData, time: t}); setError(null); }}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {error && <div className="error-message">{error}</div>}
+
+              <div className="booking-actions split mt-4">
+                <button className="btn btn-outline" onClick={() => { setStep(s => s - 1); setError(null); }}>← Back</button>
+                <button className="btn btn-primary" onClick={handleNext}>Continue →</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 5 && (
+            <motion.div key="step5" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card">
+              <div className="booking-header">
+                <h2>Step 5: Optional Notes</h2>
+                <p>Anything you'd like the doctor to know beforehand?</p>
+              </div>
+              
+              <div className="form-section mt-4">
+                <textarea 
+                  rows="5" 
+                  value={formData.notes} 
+                  onChange={e => setFormData({...formData, notes: e.target.value})}
+                  placeholder="Briefly describe why you are seeking a consultation or any symptoms you have..."
+                />
+              </div>
+
+              <div className="booking-actions split mt-4">
+                <button className="btn btn-outline" onClick={() => { setStep(s => s - 1); setError(null); }}>← Back</button>
+                <button className="btn btn-primary" onClick={handleNext}>Continue →</button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 6 && (
+            <motion.div key="step6" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card large">
+              <div className="booking-header">
+                <h2>Step 6: Review & Confirm</h2>
+                <p>Please review your details before confirming.</p>
+              </div>
+              
+              <div className="review-box" style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', textAlign: 'left', lineHeight: '1.8' }}>
+                <p><strong>Name:</strong> {formData.name}</p>
+                <p><strong>Email:</strong> {formData.email}</p>
+                <p><strong>Phone:</strong> {formData.phone}</p>
+                <p><strong>Consultation Type:</strong> {formData.consultation_type}</p>
+                <p><strong>Date:</strong> {formData.date?.toDateString()}</p>
+                <p><strong>Time:</strong> {formData.time}</p>
+                {formData.notes && <p><strong>Notes:</strong> {formData.notes}</p>}
+              </div>
+
+              {error && <div className="error-message">{error}</div>}
+
+              <div className="booking-actions split mt-4">
+                <button className="btn btn-outline" onClick={() => { setStep(s => s - 1); setError(null); }}>← Back</button>
                 <button className="btn btn-primary" onClick={submitBooking} disabled={loading}>
                   {loading ? 'Confirming...' : 'Confirm Booking ✓'}
                 </button>
@@ -249,28 +333,34 @@ export default function Booking({ setTab }) {
             </motion.div>
           )}
 
-          {step === 3 && (
-            <motion.div key="step3" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card success">
-              <div className="success-icon">✓</div>
+          {step === 7 && (
+            <motion.div key="step7" variants={fadeVariant} initial="hidden" animate="visible" exit="exit" className="booking-card success large">
+              <div className="success-icon" style={{ fontSize: '3rem', color: 'green', marginBottom: '1rem' }}>✓</div>
               <h2>Booking Confirmed!</h2>
               <p>Your appointment has been successfully scheduled. We look forward to seeing you.</p>
               
-              <div className="booking-id-box">
-                <span className="label">Booking ID</span>
-                <span className="id">{bookingId}</span>
+              <div className="booking-id-box" style={{ background: 'var(--brand-lt)', padding: '1.5rem', borderRadius: '12px', margin: '2rem 0' }}>
+                <span className="label" style={{ display: 'block', color: 'var(--brand-dk)', fontWeight: 'bold' }}>Booking ID</span>
+                <span className="id" style={{ fontSize: '1.5rem', fontFamily: 'monospace', color: 'var(--brand)' }}>{bookingId}</span>
               </div>
               
-              <div className="booking-summary">
+              <div className="booking-summary" style={{ textAlign: 'left', background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px' }}>
                 <p><strong>For:</strong> {formData.name}</p>
                 <p><strong>Type:</strong> {formData.consultation_type}</p>
                 <p><strong>Date:</strong> {formData.date?.toDateString()}</p>
                 <p><strong>Time:</strong> {formData.time}</p>
               </div>
               
-              <p className="success-note">A confirmation email has been sent to {formData.email}.</p>
+              <p className="success-note" style={{ marginTop: '2rem', color: 'var(--text-soft)' }}>A confirmation email has been sent to {formData.email}.</p>
               
-              <div className="booking-actions centered mt-4">
-                <button className="btn btn-primary" onClick={() => setTab('home')}>Return to Home</button>
+              <div className="booking-actions split mt-4" style={{ gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <button className="btn btn-outline" onClick={() => setTab('home')}>Return to Home</button>
+                <button className="btn btn-outline" onClick={() => {
+                  setStep(1);
+                  setBookingId(null);
+                  setFormData(prev => ({...prev, date: null, time: '', notes: ''}));
+                }}>Book Another</button>
+                <button className="btn btn-primary" onClick={() => setTab('chat')}>Talk to CareBridge AI</button>
               </div>
             </motion.div>
           )}

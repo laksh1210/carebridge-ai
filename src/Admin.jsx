@@ -63,6 +63,7 @@ export default function Admin() {
                 <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Consultation</div>
                 <div style={{ fontWeight: '500', color: 'var(--text)' }}>{apt.consultation_type}</div>
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-soft)' }}>{apt.date} at {apt.time}</div>
+                <div style={{ marginTop: '0.5rem', display: 'inline-block', padding: '0.2rem 0.6rem', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', borderRadius: '4px', background: apt.status === 'pending' ? 'var(--brand-lt)' : 'var(--surface)', color: 'var(--brand-dk)' }}>{apt.status}</div>
               </div>
               {apt.notes && (
                 <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem', background: 'var(--bg)', padding: '1rem', borderRadius: '8px', border: '1px dashed var(--border)' }}>
