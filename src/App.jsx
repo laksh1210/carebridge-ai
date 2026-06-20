@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import './index.css';
 import logoImg from './logo.jpg';
 import heroHeartImg from './assets/hero_heart_3d.png';
+import Booking from './Booking.jsx';
 /* ── QUIZ DATA ─────────────────────────────────────── */
 const QUIZ = [
   {
@@ -140,7 +141,7 @@ function Nav({ tab, setTab, dark, setDark }) {
     ["1.5rem 2rem", "1rem 2rem"]
   );
 
-  const tabs = ["home", "quiz", "stories", "plans", "chat"];
+  const tabs = ["home", "quiz", "stories", "plans", "chat", "booking"];
   return (
     <motion.nav 
       className="nav"
@@ -730,7 +731,7 @@ function CarePlans({ setTab }) {
         <p>Empower your healthcare journey with AI-driven guidance, seamless appointment booking, and personalized care—all in one secure platform.</p>
         <div className="cta-actions">
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary" onClick={() => setTab("quiz")}>Start Your Journey</motion.button>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("chat")}>Book a Consultation</motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-outline" onClick={() => setTab("booking")}>Book a Consultation</motion.button>
         </div>
       </motion.div>
     </motion.div>
@@ -920,6 +921,7 @@ export default function App() {
         {tab === "stories" && <Stories key="stories" setTab={setTab} stories={content.stories} quizResult={quizResult} />}
         {tab === "plans" && <CarePlans key="plans" setTab={setTab} />}
         {tab === "chat" && <Chat key="chat" />}
+        {tab === "booking" && <Booking key="booking" setTab={setTab} />}
       </AnimatePresence>
     </>
   );

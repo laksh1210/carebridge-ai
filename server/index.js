@@ -251,6 +251,31 @@ Rules:
   }
 });
 
+/* ── APPOINTMENTS API ────────────────────────────── */
+app.post("/api/appointments", rateLimit, (req, res) => {
+  try {
+    const { name, email, phone, consultation_type, date, time, notes } = req.body;
+    
+    if (!name || !email || !phone || !consultation_type || !date || !time) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const booking_id = 'CB-' + Math.floor(10000 + Math.random() * 90000);
+
+    const stmt = db.prepare(`
+      INSERT INTO appointments (booking_id, name, email, phone, consultation_type, date, time, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    stmt.run(booking_id, name, email, phone, consultation_type, date, time, notes || "");
+
+    res.json({ success: true, booking_id });
+  } catch (error) {
+    console.error("[ERROR]", error);
+    res.status(500).json({ error: "Failed to create appointment" });
+  }
+});
+
 /* ── SERVER ────────────────────────────────────────── */
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
