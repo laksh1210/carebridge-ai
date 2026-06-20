@@ -250,6 +250,51 @@ Rules:
     res.status(500).json({ reply: "I'm having trouble connecting right now. Please try again in a moment." });
   }
 });
+/* ── AUTH API ──────────────────────────────────────── */
+app.post("/api/auth/register", (req, res) => {
+  try {
+    const { username, email, phone, password, name } = req.body;
+    if (!username || !email || !phone || !password || !name) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+    
+    const stmt = db.prepare(`
+      INSERT INTO users (username, email, phone, password, name, role)
+      VALUES (?, ?, ?, ?, ?, 'patient')
+    `);
+    
+    stmt.run(username, email, phone, password, name);
+    
+    const user = db.prepare("SELECT id, username, email, name, role FROM users WHERE username = ?").get(username);
+    res.json({ success: true, user });
+  } catch (error) {
+    if (error.message.includes('UNIQUE constraint failed')) {
+      return res.status(400).json({ error: "Username or email already exists" });
+    }
+    console.error("[ERROR]", error);
+    res.status(500).json({ error: "Failed to register" });
+  }
+});
+
+app.post("/api/auth/login", (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
+    }
+    
+    const user = db.prepare("SELECT id, username, email, name, role FROM users WHERE username = ? AND password = ?").get(username, password);
+    
+    if (user) {
+      res.json({ success: true, user });
+    } else {
+      res.status(401).json({ error: "Invalid username or password" });
+    }
+  } catch (error) {
+    console.error("[ERROR]", error);
+    res.status(500).json({ error: "Failed to login" });
+  }
+});
 
 /* ── APPOINTMENTS API ────────────────────────────── */
 app.post("/api/appointments", rateLimit, (req, res) => {

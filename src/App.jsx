@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import './index.css';
 import logoImg from './logo.jpg';
-import heroHeartImg from './assets/hero_heart_3d.png';
 import Booking from './Booking.jsx';
 import Admin from './Admin.jsx';
+import Auth from './Auth.jsx';
 /* ── QUIZ DATA ─────────────────────────────────────── */
 const QUIZ = [
   {
@@ -123,7 +123,7 @@ const RESULTS = {
 
 /* Content fetched from API */
 /* ── NAV ───────────────────────────────────────────── */
-function Nav({ tab, setTab, dark, setDark }) {
+function Nav({ tab, setTab, dark, setDark, authStatus, setAuthStatus }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const navBackground = useTransform(
@@ -142,7 +142,18 @@ function Nav({ tab, setTab, dark, setDark }) {
     ["1.5rem 2rem", "1rem 2rem"]
   );
 
-  const tabs = ["home", "quiz", "stories", "plans", "chat", "booking", "admin"];
+  const tabs = ["home", "quiz", "stories", "plans", "chat"];
+  if (authStatus.loggedIn && authStatus.role === 'patient') tabs.push("booking");
+  if (authStatus.loggedIn && authStatus.role === 'doctor') tabs.push("admin");
+
+  const handleAuthAction = () => {
+    if (authStatus.loggedIn) {
+      setAuthStatus({ loggedIn: false, role: null, user: null });
+      setTab('home');
+    } else {
+      setTab('auth');
+    }
+  };
   return (
     <motion.nav 
       className="nav"
@@ -174,6 +185,10 @@ function Nav({ tab, setTab, dark, setDark }) {
         ))}
       </div>
       <div className="nav-right">
+        {authStatus.loggedIn && <span className="nav-username">Hi, {authStatus.user?.name.split(' ')[0]}</span>}
+        <button className="nav-auth-btn" onClick={handleAuthAction}>
+          {authStatus.loggedIn ? "Logout" : "Login"}
+        </button>
         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="theme-toggle" onClick={() => setDark(!dark)}>
           {dark ? "☀️" : "🌙"} <span>{dark ? "Light" : "Dark"}</span>
         </motion.button>
@@ -888,6 +903,7 @@ function Chat() {
 /* ── APP ───────────────────────────────────────────── */
 export default function App() {
   const [tab, setTab] = useState("home");
+  const [authStatus, setAuthStatus] = useState({ loggedIn: false, role: null, user: null });
   const [dark, setDark] = useState(false);
   const [content, setContent] = useState({ barriers: [], stories: [] });
   const [loading, setLoading] = useState(true);
@@ -915,15 +931,16 @@ export default function App() {
 
   return (
     <>
-      <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} />
+      <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} authStatus={authStatus} setAuthStatus={setAuthStatus} />
       <AnimatePresence mode="wait">
         {tab === "home" && <Home key="home" setTab={setTab} barriers={content.barriers} />}
         {tab === "quiz" && <Quiz key="quiz" setTab={setTab} quizResult={quizResult} setQuizResult={setQuizResult} />}
         {tab === "stories" && <Stories key="stories" setTab={setTab} stories={content.stories} quizResult={quizResult} />}
         {tab === "plans" && <CarePlans key="plans" setTab={setTab} />}
         {tab === "chat" && <Chat key="chat" />}
-        {tab === "booking" && <Booking key="booking" setTab={setTab} />}
-        {tab === "admin" && <Admin key="admin" />}
+        {tab === "auth" && <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />}
+        {tab === "booking" && (authStatus.loggedIn ? <Booking key="booking" setTab={setTab} /> : <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />)}
+        {tab === "admin" && (authStatus.role === "doctor" ? <Admin key="admin" /> : <Auth key="auth" setAuthStatus={setAuthStatus} setTab={setTab} />)}
       </AnimatePresence>
     </>
   );

@@ -41,6 +41,20 @@ db.exec(`
     notes TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT NOT NULL,
+    password TEXT NOT NULL,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'patient',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  INSERT OR IGNORE INTO users (username, email, phone, password, name, role) 
+  VALUES ('admin', 'admin@carebridge.com', '0000000000', 'admin123', 'Dr. Smith (Admin)', 'doctor');
 `);
 
 export default db;
