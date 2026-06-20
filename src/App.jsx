@@ -4,6 +4,7 @@ import './index.css';
 import logoImg from './logo.jpg';
 import heroHeartImg from './assets/hero_heart_3d.png';
 import Booking from './Booking.jsx';
+import Admin from './Admin.jsx';
 /* ── QUIZ DATA ─────────────────────────────────────── */
 const QUIZ = [
   {
@@ -141,7 +142,7 @@ function Nav({ tab, setTab, dark, setDark }) {
     ["1.5rem 2rem", "1rem 2rem"]
   );
 
-  const tabs = ["home", "quiz", "stories", "plans", "chat", "booking"];
+  const tabs = ["home", "quiz", "stories", "plans", "chat", "booking", "admin"];
   return (
     <motion.nav 
       className="nav"
@@ -922,6 +923,7 @@ export default function App() {
         {tab === "plans" && <CarePlans key="plans" setTab={setTab} />}
         {tab === "chat" && <Chat key="chat" />}
         {tab === "booking" && <Booking key="booking" setTab={setTab} />}
+        {tab === "admin" && <Admin key="admin" />}
       </AnimatePresence>
     </>
   );

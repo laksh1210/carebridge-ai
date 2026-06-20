@@ -123,7 +123,8 @@ export default function Booking({ setTab }) {
         date: formData.date.toISOString().split('T')[0]
       };
       
-      const res = await fetch('/api/appointments', {
+      const API_URL = import.meta.env.DEV ? `http://${window.location.hostname}:3001` : "https://carebridge-ai-vhp0.onrender.com";
+      const res = await fetch(`${API_URL}/api/appointments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
