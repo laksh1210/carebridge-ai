@@ -48,13 +48,24 @@ export default function Auth({ setAuthStatus, setTab }) {
     }
   };
 
+  const [suggestion, setSuggestion] = useState(null);
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuggestion(null);
+
     if (!formData.username || !formData.email || !formData.phone || !formData.password || !formData.name) {
       setError("All fields are required.");
       return;
     }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
+      setError("Phone number must be exactly 10 digits.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
@@ -69,6 +80,9 @@ export default function Auth({ setAuthStatus, setTab }) {
         setTab('booking');
       } else {
         setError(data.error || "Registration failed");
+        if (data.suggestion) {
+          setSuggestion(data.suggestion);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -195,7 +209,20 @@ export default function Auth({ setAuthStatus, setTab }) {
                   <label>Password</label>
                   <input type="password" placeholder="••••••••" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} required />
                 </div>
-                {error && <div className="error-message full-col">{error}</div>}
+                {error && (
+                  <div className="error-message full-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <span>{error}</span>
+                    {suggestion && (
+                      <button 
+                        type="button" 
+                        onClick={() => { setFormData({...formData, username: suggestion}); setError(null); setSuggestion(null); }}
+                        style={{ padding: '0.5rem', background: 'var(--brand-lt)', border: '1px solid var(--brand)', borderRadius: '8px', color: 'var(--brand-dk)', cursor: 'pointer', fontWeight: 'bold' }}
+                      >
+                        Try this username: {suggestion}
+                      </button>
+                    )}
+                  </div>
+                )}
                 <div className="full-col">
                   <button type="submit" className="btn btn-primary full-width" disabled={loading}>
                     {loading ? "Creating Account..." : "Create Account"}

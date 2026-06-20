@@ -257,7 +257,29 @@ app.post("/api/auth/register", (req, res) => {
     if (!username || !email || !phone || !password || !name) {
       return res.status(400).json({ error: "All fields are required" });
     }
-    
+
+    // Phone validation (10 digits)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
+      return res.status(400).json({ error: "Phone number must be exactly 10 digits" });
+    }
+
+    // Check if phone already exists
+    const existingPhone = db.prepare("SELECT id FROM users WHERE phone = ?").get(phone);
+    if (existingPhone) {
+      return res.status(400).json({ error: "This phone number is already registered to another account." });
+    }
+
+    // Check if username already exists
+    const existingUser = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
+    if (existingUser) {
+      const suggestion = username + Math.floor(100 + Math.random() * 900);
+      return res.status(400).json({ 
+        error: "Username is already taken.", 
+        suggestion: suggestion 
+      });
+    }
+
     const stmt = db.prepare(`
       INSERT INTO users (username, email, phone, password, name, role)
       VALUES (?, ?, ?, ?, ?, 'patient')
@@ -269,7 +291,7 @@ app.post("/api/auth/register", (req, res) => {
     res.json({ success: true, user });
   } catch (error) {
     if (error.message.includes('UNIQUE constraint failed')) {
-      return res.status(400).json({ error: "Username or email already exists" });
+      return res.status(400).json({ error: "Email is already registered" });
     }
     console.error("[ERROR]", error);
     res.status(500).json({ error: "Failed to register" });
