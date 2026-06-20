@@ -111,12 +111,12 @@ export default function About({ setTab }) {
           <motion.div className="team-card" variants={fadeUpVariant}>
             <img src={lakshyaImg} alt="Lakshya Falor" className="team-avatar" />
             <h3>Lakshya Falor</h3>
-            <p>Full Stack Developer & Project Lead</p>
+            <p>Full Stack Developer</p>
           </motion.div>
           <motion.div className="team-card" variants={fadeUpVariant}>
             <img src={karanImg} alt="Karan Singh" className="team-avatar" />
             <h3>Karan Singh</h3>
-            <p>Developer & System Integration</p>
+            <p>Project Lead & System Integration</p>
           </motion.div>
           <motion.div className="team-card" variants={fadeUpVariant}>
             <img src={pragyanImg} alt="Pragyan Shrivastav" className="team-avatar" />
