@@ -6,6 +6,7 @@ import heroHeartImg from './assets/hero_heart_3d.png';
 import Booking from './Booking.jsx';
 import Admin from './Admin.jsx';
 import Auth from './Auth.jsx';
+import About from './About.jsx';
 
 const QUIZ = [
   {
@@ -141,7 +142,7 @@ function Nav({ tab, setTab, dark, setDark, authStatus, setAuthStatus }) {
     ["1.5rem 2rem", "1rem 2rem"]
   );
 
-  const tabs = ["home", "quiz", "stories", "plans", "chat"];
+  const tabs = ["home", "about", "quiz", "stories", "plans", "chat"];
   if (authStatus.loggedIn && authStatus.role === 'patient') tabs.push("booking");
   if (authStatus.loggedIn && authStatus.role === 'doctor') tabs.push("admin");
 
@@ -977,6 +978,7 @@ export default function App() {
       <Nav tab={tab} setTab={setTab} dark={dark} setDark={setDark} authStatus={authStatus} setAuthStatus={setAuthStatus} />
       <AnimatePresence mode="wait">
         {tab === "home" && <Home key="home" setTab={setTab} barriers={content.barriers} />}
+        {tab === "about" && <About key="about" setTab={setTab} />}
         {tab === "quiz" && <Quiz key="quiz" setTab={setTab} quizResult={quizResult} setQuizResult={setQuizResult} />}
         {tab === "stories" && <Stories key="stories" setTab={setTab} stories={content.stories} quizResult={quizResult} />}
         {tab === "plans" && <CarePlans key="plans" setTab={setTab} />}
