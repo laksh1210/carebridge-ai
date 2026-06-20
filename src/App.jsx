@@ -790,7 +790,7 @@ function CarePlans({ setTab }) {
   );
 }
 
-function Chat() {
+function Chat({ setTab, quizResult }) {
   const [messages, setMessages] = useState([
     { role: "bot", text: "Hi there 👋 I'm CareBridge. Whatever's making you hesitate about seeing a doctor, I'm here to listen, not lecture. What's been on your mind?" },
   ]);
