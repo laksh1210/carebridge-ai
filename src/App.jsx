@@ -422,8 +422,12 @@ function Home({ setTab, barriers = [] }) {
             Anonymous · No account needed · Built for India
           </div>
         </div>
-        <div className="crisis-banner">
-          🆘 <strong>In crisis?</strong> iCall: 9152987821 · Vandrevala: 1860 2662 345 · NIMHANS: 080 46110007 · Snehi: 044 24640050
+        <div className="support-banner">
+          <div className="support-icon">💚</div>
+          <div className="support-content">
+            <strong>You don't have to go through this alone.</strong>
+            <p>Free, confidential emotional support is available. Reach out to <strong>iCall: 9152987821</strong>, <strong>Vandrevala: 1860 2662 345</strong>, or <strong>NIMHANS: 080 46110007</strong>.</p>
+          </div>
         </div>
       </footer>
     </motion.div>
@@ -938,8 +942,12 @@ function Chat({ setTab, quizResult }) {
         </div>
       </div>
 
-      <div className="crisis-banner" style={{ marginTop: "1rem" }}>
-        🆘 <strong>In crisis?</strong> Call iCall: 9152987821 · Vandrevala: 1860 2662 345 · NIMHANS: 080 46110007
+      <div className="support-banner" style={{ marginTop: "1rem" }}>
+        <div className="support-icon">💚</div>
+        <div className="support-content">
+          <strong>You don't have to go through this alone.</strong>
+          <p>Free, confidential emotional support is available. Reach out to <strong>iCall: 9152987821</strong> or <strong>Vandrevala: 1860 2662 345</strong>.</p>
+        </div>
       </div>
     </motion.div>
   );
