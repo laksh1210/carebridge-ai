@@ -24,7 +24,7 @@ export default function About({ setTab }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Hero Section */}
+
       <motion.section 
         className="about-hero"
         variants={staggerContainer}
@@ -49,7 +49,7 @@ export default function About({ setTab }) {
         </motion.div>
       </motion.section>
 
-      {/* Mission & Vision Section */}
+
       <motion.section 
         className="about-section"
         variants={staggerContainer}
@@ -68,7 +68,7 @@ export default function About({ setTab }) {
         </motion.p>
       </motion.section>
 
-      {/* What We Offer */}
+
       <motion.section 
         variants={staggerContainer}
         initial="hidden"
@@ -97,7 +97,7 @@ export default function About({ setTab }) {
         </motion.div>
       </motion.section>
 
-      {/* Meet the Team */}
+
       <motion.section 
         variants={staggerContainer}
         initial="hidden"
@@ -135,7 +135,7 @@ export default function About({ setTab }) {
         </div>
       </motion.section>
 
-      {/* Technology Stack */}
+
       <motion.section 
         className="about-section"
         variants={staggerContainer}
@@ -151,7 +151,7 @@ export default function About({ setTab }) {
         </motion.div>
       </motion.section>
 
-      {/* Core Values */}
+
       <motion.section 
         variants={staggerContainer}
         initial="hidden"
@@ -181,7 +181,7 @@ export default function About({ setTab }) {
         </div>
       </motion.section>
 
-      {/* Disclaimer */}
+
       <motion.section 
         variants={staggerContainer}
         initial="hidden"
@@ -196,7 +196,7 @@ export default function About({ setTab }) {
         </motion.div>
       </motion.section>
 
-      {/* Final CTA */}
+
       <motion.section 
         variants={staggerContainer}
         initial="hidden"

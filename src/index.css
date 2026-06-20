@@ -552,7 +552,7 @@ a { text-decoration: none; }
 .nav-auth-btn:hover { background: var(--brand-lt); border-color: var(--brand); }
 .nav-username { font-weight: 600; font-size: 0.95rem; color: var(--brand-dk); margin-right: 1rem; }
 
-/* About Page Styles */
+
 .about-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 6rem; display: flex; flex-direction: column; gap: 5rem; }
 
 .about-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; padding-top: 3rem; }
