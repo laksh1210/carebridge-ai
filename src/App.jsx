@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import './index.css';
 import logoImg from './logo.jpg';
+import heroHeartImg from './assets/hero_heart_3d.png';
 import Booking from './Booking.jsx';
 import Admin from './Admin.jsx';
 import Auth from './Auth.jsx';
