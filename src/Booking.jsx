@@ -312,7 +312,7 @@ export default function Booking({ setTab, quizResult, authStatus }) {
                 <p>Please review your details before confirming.</p>
               </div>
               
-              <div className="review-box" style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', textAlign: 'left', lineHeight: '1.8' }}>
+              <div className="review-box" style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', textAlign: 'center', lineHeight: '1.8' }}>
                 <p><strong>Name:</strong> {formData.name}</p>
                 <p><strong>Email:</strong> {formData.email}</p>
                 <p><strong>Phone:</strong> {formData.phone}</p>
@@ -344,7 +344,7 @@ export default function Booking({ setTab, quizResult, authStatus }) {
                 <span className="id" style={{ fontSize: '1.5rem', fontFamily: 'monospace', color: 'var(--brand)' }}>{bookingId}</span>
               </div>
               
-              <div className="booking-summary" style={{ textAlign: 'left', background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px' }}>
+              <div className="booking-summary" style={{ textAlign: 'center', background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px' }}>
                 <p><strong>For:</strong> {formData.name}</p>
                 <p><strong>Type:</strong> {formData.consultation_type}</p>
                 <p><strong>Date:</strong> {formData.date?.toDateString()}</p>
